@@ -22,7 +22,7 @@ namespace QPath
     /// </summary>
 
 
-    public static class QPath {
+    public static class QPathClass {
 
         public static T[] FindPath<T>( 
             IQPathWorld world, 

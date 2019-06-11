@@ -27,7 +27,7 @@ public class MouseController : MonoBehaviour
     Vector3 lastMousePosition;  // From Input.mousePosition
 
     // Camera Dragging bookkeeping variables
-    int mouseDragThreshold = 1; // Threshold of mouse movement to start a drag
+    int mouseDragThreshold = 2; // Threshold of mouse movement to start a drag
     Vector3 lastMouseGroundPlanePosition;
     Vector3 cameraTargetOffset;
 
@@ -223,7 +223,7 @@ public class MouseController : MonoBehaviour
         if( hexPath == null || hexUnderMouse != hexLastUnderMouse )
         {
             // Do a pathfinding search to that hex
-            hexPath = QPath.QPath.FindPath<Hex>( hexMap, selectionController.SelectedUnit, selectionController.SelectedUnit.Hex, hexUnderMouse, Hex.CostEstimate );
+            hexPath = QPath.QPathClass.FindPath<Hex>( hexMap, selectionController.SelectedUnit, selectionController.SelectedUnit.Hex, hexUnderMouse, Hex.CostEstimate );
         }
 
     }

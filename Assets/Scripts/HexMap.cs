@@ -93,7 +93,7 @@ public class HexMap : MonoBehaviour, IQPathWorld {
     [System.NonSerialized] public float HeightHill = 0.6f;
     [System.NonSerialized] public float HeightFlat = 0.0f;
 
-    [System.NonSerialized] public float MoistureJungle = 1f;
+    [System.NonSerialized] public float MoistureJungle = 0.75f;
     [System.NonSerialized] public float MoistureForest = 0.5f;
     [System.NonSerialized] public float MoistureGrasslands = 0f;
     [System.NonSerialized] public float MoisturePlains = -0.75f;
@@ -236,7 +236,7 @@ public class HexMap : MonoBehaviour, IQPathWorld {
                 );
 
 
-                GameObject hexGO = (GameObject)Instantiate(
+                GameObject hexGO = Instantiate(
                     HexPrefab, 
                     pos,
                     Quaternion.identity,
@@ -382,8 +382,11 @@ public class HexMap : MonoBehaviour, IQPathWorld {
         GameObject myHexGO = hexToGameObjectMap[myHex];
         unit.SetHex(myHex);
 
-        GameObject unitGO = (GameObject)Instantiate(prefab, myHexGO.transform.position, Quaternion.identity, myHexGO.transform);
-        unit.OnObjectMoved += unitGO.GetComponent<UnitView>().OnUnitMoved;
+        GameObject unitGO = Instantiate(prefab, myHexGO.transform.position, Quaternion.identity, myHexGO.transform);
+        UnitView unitView = unitGO.GetComponent<UnitView>();
+        unit.OnObjectMoved += unitView.OnUnitMoved;
+        unitView.Unit = unit;
+        unitView.HexMap = this;
 
         CurrentPlayer.AddUnit(unit);
         unit.OnObjectDestroyed += OnUnitDestroyed;
@@ -418,7 +421,10 @@ public class HexMap : MonoBehaviour, IQPathWorld {
             return;
         }
 
-        GameObject cityGO = (GameObject)Instantiate(prefab, myHexGO.transform.position, Quaternion.identity, myHexGO.transform);
+        Vector3 cityPosition = myHexGO.transform.position;
+        cityPosition.y += myHexGO.GetComponent<HexComponent>().VerticalOffset;
+
+        GameObject cityGO = Instantiate(prefab, cityPosition, Quaternion.identity, myHexGO.transform);
 
         CurrentPlayer.AddCity(city);
         city.OnObjectDestroyed += OnCityDestroyed;

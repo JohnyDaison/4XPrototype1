@@ -9,6 +9,8 @@ public class UnitView : MonoBehaviour {
         newPosition = this.transform.position;
     }
 
+    public Unit Unit;
+    public HexMap HexMap;
     Vector3 newPosition;
 
     Vector3 currentVelocity;
@@ -18,7 +20,7 @@ public class UnitView : MonoBehaviour {
     {
         // This GameObject is supposed to be a child of the hex we are
         // standing in. This ensures that we are in the correct place
-        // in the hierachy
+        // in the hierarchy
         // Our correct position when we aren't moving, is to be at
         // 0,0 local position relative to our parent.
 
@@ -43,13 +45,18 @@ public class UnitView : MonoBehaviour {
         }
         else {
             // TODO: WE need a better signalling system and/or animation queueing
-            GameObject.FindObjectOfType<HexMap>().AnimationIsPlaying = true;
+            HexMap.AnimationIsPlaying = true;
         }
     }
 
 
     void Update()
     {
+        // This solves the case when Hex gets wrapped to a new position
+        if (this.transform.position != newPosition && !HexMap.AnimationIsPlaying) {
+            newPosition = Unit.Hex.PositionFromCamera();
+            newPosition.y += HexMap.GetHexGO(Unit.Hex).GetComponent<HexComponent>().VerticalOffset;
+        }
 
         this.transform.position = Vector3.SmoothDamp( this.transform.position, newPosition, ref currentVelocity, smoothTime );
 

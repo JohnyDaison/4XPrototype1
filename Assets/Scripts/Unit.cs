@@ -1,8 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using QPath;
-using System.Linq;
 
 public class Unit : MapObject, IQPathUnit {
 
@@ -34,7 +32,7 @@ public class Unit : MapObject, IQPathUnit {
             return Hex.Distance(a, b);
         );*/
 
-        Hex[] pathHexes = QPath.QPath.FindPath<Hex>( 
+        Hex[] pathHexes = QPathClass.FindPath<Hex>(
             Hex.HexMap, 
             this,
             Hex, 

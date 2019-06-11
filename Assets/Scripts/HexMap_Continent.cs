@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class HexMap_Continent : HexMap {
 
@@ -14,9 +12,11 @@ public class HexMap_Continent : HexMap {
         int numContinents = 3;
         int continentSpacing = NumColumns / numContinents;
 
-        // Uncomment this to generate the same "random" terrain every time.
-        Random.InitState(0);
-
+        int seed = 0;
+        // Uncomment this to generate random terrain.
+        //int seed = Random.Range(0, int.MaxValue);
+        Random.InitState(seed);
+        Debug.LogFormat("seed: {0}", seed);
 
         for (int c = 0; c < numContinents; c++)
         {
@@ -35,6 +35,7 @@ public class HexMap_Continent : HexMap {
 
         // Add lumpiness Perlin Noise?
         float noiseResolution = 0.01f;
+        float maxCoordinate = Mathf.Max(NumColumns,NumRows);
         Vector2 noiseOffset = new Vector2( Random.Range(0f, 1f), Random.Range(0f, 1f) ); 
 
         float noiseScale = 2f;  // Larger values makes more islands (and lakes, I guess)
@@ -46,8 +47,8 @@ public class HexMap_Continent : HexMap {
             {
                 Hex h = GetHexAt(column, row);
                 float n = 
-                    Mathf.PerlinNoise( ((float)column/Mathf.Max(NumColumns,NumRows) / noiseResolution) + noiseOffset.x, 
-                        ((float)row/Mathf.Max(NumColumns,NumRows) / noiseResolution) + noiseOffset.y )
+                    Mathf.PerlinNoise( ((column/maxCoordinate) / noiseResolution) + noiseOffset.x,
+                        ((row/maxCoordinate) / noiseResolution) + noiseOffset.y )
                     - 0.5f;
                 h.Elevation += n * noiseScale;
             }
