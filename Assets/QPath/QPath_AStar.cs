@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
@@ -71,20 +70,20 @@ namespace QPath
 
                     if (closedSet.Contains(neighbour))
                     {
-                        continue; // ignore this already completed neighbor
+                        continue; // ignore this already completed neighbour
                     }
 
-                    float total_pathfinding_cost_to_neighbor = 
+                    float total_pathfinding_cost_to_neighbour =
                         neighbour.AggregateCostToEnter( g_score[current], current, unit );
 
-                    if(total_pathfinding_cost_to_neighbor < 0)
+                    if(total_pathfinding_cost_to_neighbour < 0)
                     {
                         // Values less than zero represent an invalid/impassable tile
                         continue;
                     }
-                    //Debug.Log(total_pathfinding_cost_to_neighbor);
+                    //Debug.Log(total_pathfinding_cost_to_neighbour);
 
-                    float tentative_g_score = total_pathfinding_cost_to_neighbor;
+                    float tentative_g_score = total_pathfinding_cost_to_neighbour;
 
                     // Is the neighbour already in the open set?
                     //   If so, and if this new score is worse than the old score,
