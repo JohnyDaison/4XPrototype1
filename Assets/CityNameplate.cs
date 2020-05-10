@@ -1,8 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
+﻿using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class CityNameplate : MonoBehaviour, IPointerClickHandler {
 
@@ -13,5 +11,11 @@ public class CityNameplate : MonoBehaviour, IPointerClickHandler {
         //MapObjectNamePlate monp = GetComponent<MapObjectNamePlate>();
 
         GameObject.FindObjectOfType<SelectionController>().SelectedCity = MyCity;
+    }
+
+    void LateUpdate () {
+
+        Text textComponent = this.GetComponentInChildren<Text>();
+        textComponent.text = MyCity.Name;
     }
 }

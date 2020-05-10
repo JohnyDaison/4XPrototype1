@@ -1,8 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
 using System.Linq;
 using QPath;
+using UnityEngine;
 
 /// <summary>
 /// The Hex class defines the grid position, world space position, size, 
@@ -42,15 +41,12 @@ public class Hex : IQPathTile {
     public enum FEATURE_TYPE { NONE, FOREST, RAINFOREST, MARSH }
     public FEATURE_TYPE FeatureType { get; set; }
 
-
-    // TODO: Need some kind of property to track hex time (plains, grasslands, etc...)
-    // TODO: Need property to track hex detail (forest, mine, farm, etc...)
-
     public readonly HexMap HexMap;
 
     static readonly float WIDTH_MULTIPLIER = Mathf.Sqrt(3) / 2;
 
     float radius = 1f;
+    Hex[] neighbours;
 
     HashSet<Unit> units;
     public Unit[] Units { 
@@ -207,9 +203,9 @@ public class Hex : IQPathTile {
     /// <summary>
     /// Returns the most common movement cost for this tile, for a typical melee unit
     /// </summary>
-    public int BaseMovementCost( bool isHillWalker, bool isForestWalker, bool isFlyer )
+    public int BaseMovementCost( bool isHillWalker, bool isForestWalker, bool isFlier)
     {
-        if( (ElevationType == ELEVATION_TYPE.MOUNTAIN || ElevationType == ELEVATION_TYPE.WATER) && isFlyer == false )
+        if( (ElevationType == ELEVATION_TYPE.MOUNTAIN || ElevationType == ELEVATION_TYPE.WATER) && isFlier == false )
             return -99;
 
         int moveCost = 1;
@@ -222,8 +218,6 @@ public class Hex : IQPathTile {
 
         return moveCost;
     }
-
-    Hex[] neighbours;
 
     #region IQPathTile implementation
     public IQPathTile[] GetNeighbours()

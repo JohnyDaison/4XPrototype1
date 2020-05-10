@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class BuildingJob
@@ -25,6 +24,10 @@ public class BuildingJob
 
     public float totalProductionNeeded;
     public float productionDone;
+
+    public float workLeft {
+        get { return totalProductionNeeded - productionDone; }
+    }
 
     public Image BuildingJobIcon;   // Ex: Image for the Petra
     public string BuildingJobName;  // Ex:  "Petra"

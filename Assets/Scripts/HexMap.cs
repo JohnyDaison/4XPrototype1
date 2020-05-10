@@ -1,8 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using QPath;
-using System.Linq;
+using UnityEngine;
 
 public class HexMap : MonoBehaviour, IQPathWorld {
 
@@ -84,6 +83,7 @@ public class HexMap : MonoBehaviour, IQPathWorld {
     public Material MatDesert;
 
     public GameObject UnitDwarfPrefab;
+    public GameObject UnitHumanPrefab;
     public GameObject CityPrefab;
 
     public int TurnNumber = 0;
@@ -371,7 +371,7 @@ public class HexMap : MonoBehaviour, IQPathWorld {
         return results.ToArray();
     }
 
-    public void SpawnUnitAt( Unit unit, GameObject prefab, int q, int r )
+    public void SpawnUnitAt( Unit unit, int q, int r )
     {
         if(unitToGameObjectMap == null)
         {
@@ -382,7 +382,7 @@ public class HexMap : MonoBehaviour, IQPathWorld {
         GameObject myHexGO = hexToGameObjectMap[myHex];
         unit.SetHex(myHex);
 
-        GameObject unitGO = Instantiate(prefab, myHexGO.transform.position, Quaternion.identity, myHexGO.transform);
+        GameObject unitGO = Instantiate(unit.prefab, myHexGO.transform.position, Quaternion.identity, myHexGO.transform);
         UnitView unitView = unitGO.GetComponent<UnitView>();
         unit.OnObjectMoved += unitView.OnUnitMoved;
         unitView.Unit = unit;

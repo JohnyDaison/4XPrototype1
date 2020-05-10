@@ -12,7 +12,8 @@ public class HexMap_Continent : HexMap {
         int numContinents = 3;
         int continentSpacing = NumColumns / numContinents;
 
-        int seed = Random.Range(0, int.MaxValue);
+        //int seed = Random.Range(0, int.MaxValue);
+        int seed = 807752405;
         Random.InitState(seed);
         Debug.LogFormat("seed: {0}", seed);
 
@@ -77,7 +78,7 @@ public class HexMap_Continent : HexMap {
 
         UpdateHexVisuals();
 
-        Unit unit = new Unit();
+        Unit unit = new Unit(Unit.UNIT_TYPE.HUMAN, UnitHumanPrefab);
 
         // For development, turn on CanBuildCities on this unit
         unit.CanBuildCities = true;
@@ -92,7 +93,7 @@ public class HexMap_Continent : HexMap {
         }
         while (!IsValidStartingHex(startHex));
 
-        SpawnUnitAt(unit, UnitDwarfPrefab, startQ, startR);
+        SpawnUnitAt(unit, startQ, startR);
 
         mainCamera.GetComponent<CameraMotion>().PanToHex(startHex);
     }
