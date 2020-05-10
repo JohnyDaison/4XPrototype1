@@ -2,7 +2,7 @@
 
 public class HexMap_Continent : HexMap {
 
-
+    public GameObject mainCamera;
 
     override public void GenerateMap()
     {
@@ -12,9 +12,7 @@ public class HexMap_Continent : HexMap {
         int numContinents = 3;
         int continentSpacing = NumColumns / numContinents;
 
-        int seed = 0;
-        // Uncomment this to generate random terrain.
-        //int seed = Random.Range(0, int.MaxValue);
+        int seed = Random.Range(0, int.MaxValue);
         Random.InitState(seed);
         Debug.LogFormat("seed: {0}", seed);
 
@@ -84,10 +82,23 @@ public class HexMap_Continent : HexMap {
         // For development, turn on CanBuildCities on this unit
         unit.CanBuildCities = true;
 
-        SpawnUnitAt(unit, UnitDwarfPrefab, 36, 15);
+        int startQ, startR;
+        Hex startHex;
 
-        City city = new City();
-        SpawnCityAt(city, CityPrefab, 35, 15);
+        do {
+            startQ = Random.Range(0, NumColumns);
+            startR = Random.Range(0, NumRows);
+            startHex = GetHexAt(startQ, startR);
+        }
+        while (!IsValidStartingHex(startHex));
+
+        SpawnUnitAt(unit, UnitDwarfPrefab, startQ, startR);
+
+        mainCamera.GetComponent<CameraMotion>().PanToHex(startHex);
+    }
+
+    bool IsValidStartingHex(Hex hex) {
+        return hex.BaseMovementCost(false, false, false) == 1;
     }
 
     void ElevateArea(int q, int r, int range, float centerHeight = .8f)
