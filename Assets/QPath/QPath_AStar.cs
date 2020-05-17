@@ -83,7 +83,7 @@ namespace QPath
                     }
                     //Debug.Log(total_pathfinding_cost_to_neighbour);
 
-                    float tentative_g_score = total_pathfinding_cost_to_neighbour;
+                    float tentative_g_score = total_pathfinding_cost_to_neighbour + 1;
 
                     // Is the neighbour already in the open set?
                     //   If so, and if this new score is worse than the old score,

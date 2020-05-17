@@ -12,8 +12,7 @@ public class HexMap_Continent : HexMap {
         int numContinents = 3;
         int continentSpacing = NumColumns / numContinents;
 
-        //int seed = Random.Range(0, int.MaxValue);
-        int seed = 807752405;
+        int seed = Random.Range(0, int.MaxValue);
         Random.InitState(seed);
         Debug.LogFormat("seed: {0}", seed);
 

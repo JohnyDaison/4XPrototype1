@@ -116,7 +116,15 @@ public class Unit : MapObject, IQPathUnit {
     public void SetHexPath( Hex[] hexArray )
     {
         SkipThisUnit = false;
-        this.hexPath = new List<Hex>( hexArray );
+
+        if (hexArray == null)
+        {
+            this.hexPath = null;
+        }
+        else
+        {
+            this.hexPath = new List<Hex>(hexArray);
+        }
     }
 
     public Hex[] GetHexPath()
@@ -203,8 +211,6 @@ public class Unit : MapObject, IQPathUnit {
 
     public int MovementCostToEnterHex( Hex hex )
     {
-        // TODO: Fix path computing for longer journeys which cross hills
-
         return hex.BaseMovementCost( isHillWalker, isForestWalker, isFlier);
     }
 
