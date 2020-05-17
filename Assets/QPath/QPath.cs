@@ -35,7 +35,7 @@ namespace QPath
             Debug.Log("QPath::FindPath");
             if( world == null || unit == null || startTile == null || endTile == null )
             {
-                Debug.LogError("null values passed to QPath::FindPath");
+                Debug.LogWarning("null values passed to QPath::FindPath");
                 return null;
             }
 

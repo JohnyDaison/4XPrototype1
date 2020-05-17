@@ -132,26 +132,52 @@ public class Hex : IQPathTile {
 
     public static float Distance(Hex a, Hex b)
     {
-        // WARNING: Probably Wrong for wrapping
+        int width = a.HexMap.NumColumns;
+        int halfWidth = width / 2;
+        int height = a.HexMap.NumRows;
+        int halfHeight = height / 2;
+
         int dQ = Mathf.Abs(a.Q - b.Q);
-        if(a.HexMap.AllowWrapEastWest)
+        int dR = Mathf.Abs(a.R - b.R);
+
+        int aQAdjusted = a.Q;
+        int aRAdjusted = a.R;
+                
+        if (a.HexMap.AllowWrapEastWest && dQ > halfWidth)
         {
-            if(dQ > a.HexMap.NumColumns / 2)
-                dQ = a.HexMap.NumColumns - dQ;
+            dQ = width - dQ;
+            if(aQAdjusted > halfWidth)
+            {
+                aQAdjusted -= width;
+            }
+            else
+            {
+                aQAdjusted += width;
+            }
         }
 
-        int dR = Mathf.Abs(a.R - b.R);
-        if(a.HexMap.AllowWrapNorthSouth)
+        
+        if(a.HexMap.AllowWrapNorthSouth && dR > halfHeight)
         {
-            if(dR > a.HexMap.NumRows / 2)
-                dR = a.HexMap.NumRows - dR;
+            dR = height - dR;
+            if (aRAdjusted > halfHeight)
+            {
+                aRAdjusted -= height;
+            }
+            else
+            {
+                aQAdjusted += height;
+            }
         }
+
+        int aSAdjusted = -(aQAdjusted + aRAdjusted);
+        int dS = Mathf.Abs(aSAdjusted - b.S);
 
         return 
             Mathf.Max( 
                 dQ,
                 dR,
-                Mathf.Abs(a.S - b.S)
+                dS
             );
     }
 

@@ -163,7 +163,7 @@ public class HexMap : MonoBehaviour, IQPathWorld {
         }
         catch
         {
-            Debug.LogError("GetHexAt: " + x + "," + y);
+            Debug.LogWarning("GetHexAt: " + x + "," + y);
             return null;
         }
     }
