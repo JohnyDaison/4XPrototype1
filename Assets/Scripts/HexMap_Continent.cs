@@ -12,6 +12,12 @@ public class HexMap_Continent : HexMap {
         int numContinents = 3;
         int continentSpacing = NumColumns / numContinents;
 
+        /*  Interesting seeds
+            1307101566 - start on the coast
+            390098444 - start on peninsula
+            1570814268 - a lot of mountains on perimeter
+        */
+
         int seed = Random.Range(0, int.MaxValue);
         Random.InitState(seed);
         Debug.LogFormat("seed: {0}", seed);
@@ -77,28 +83,51 @@ public class HexMap_Continent : HexMap {
 
         UpdateHexVisuals();
 
+        CreateStartingUnit();
+    }
+
+    void CreateStartingUnit() {
         Unit unit = new Unit(Unit.UNIT_TYPE.HUMAN, UnitHumanPrefab);
 
         // For development, turn on CanBuildCities on this unit
         unit.CanBuildCities = true;
 
         int startQ, startR;
-        Hex startHex;
 
         do {
             startQ = Random.Range(0, NumColumns);
             startR = Random.Range(0, NumRows);
-            startHex = GetHexAt(startQ, startR);
         }
-        while (!IsValidStartingHex(startHex));
+        while (!IsValidStartingPosition(startQ, startR));
 
         SpawnUnitAt(unit, startQ, startR);
 
-        mainCamera.GetComponent<CameraMotion>().PanToHex(startHex);
+        PanCameraToPosition(startQ, startR);
     }
 
-    bool IsValidStartingHex(Hex hex) {
-        return hex.BaseMovementCost(false, false, false) == 1;
+    bool IsValidStartingPosition(int startQ, int startR) {
+        int minWalkable = 3;
+
+        Hex startHex = GetHexAt(startQ, startR);
+        if (startHex.BaseMovementCost(false, false, false) != 1) {
+            return false;
+        }
+
+        Hex[] neighbours = (Hex[])startHex.GetNeighbours();
+        int walkableNeighbourCount = 0;
+
+        foreach (Hex hex in neighbours) {
+            if (hex.BaseMovementCost(false, false, false) > 0) {
+                walkableNeighbourCount++;
+            }
+        }
+
+        return walkableNeighbourCount >= minWalkable;
+    }
+
+    void PanCameraToPosition(int Q, int R) {
+        Hex hex = GetHexAt(Q, R);
+        mainCamera.GetComponent<CameraMotion>().PanToHex(hex);
     }
 
     void ElevateArea(int q, int r, int range, float centerHeight = .8f)
