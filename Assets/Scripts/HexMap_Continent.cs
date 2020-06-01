@@ -83,10 +83,14 @@ public class HexMap_Continent : HexMap {
 
         UpdateHexVisuals();
 
-        CreateStartingUnit();
+        // foreach (Player p in Players) {
+        //     CreateStartingUnit(p);
+        // }
+
+        CreateStartingUnit(CurrentPlayer);
     }
 
-    void CreateStartingUnit() {
+    void CreateStartingUnit(Player player) {
         Unit unit = new Unit(Unit.UNIT_TYPE.HUMAN, UnitHumanPrefab);
 
         // For development, turn on CanBuildCities on this unit
@@ -100,9 +104,11 @@ public class HexMap_Continent : HexMap {
         }
         while (!IsValidStartingPosition(startQ, startR));
 
-        SpawnUnitAt(unit, startQ, startR);
+        SpawnUnitAt(unit, startQ, startR, player);
 
-        PanCameraToPosition(startQ, startR);
+        if(player == CurrentPlayer) {
+            PanCameraToPosition(startQ, startR);
+        }
     }
 
     bool IsValidStartingPosition(int startQ, int startR) {

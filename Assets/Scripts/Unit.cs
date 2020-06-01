@@ -17,6 +17,7 @@ public class Unit : MapObject, IQPathUnit {
     public enum UNIT_TYPE { HUMAN, DWARF, ELF, TOUCAN, MERMAN }
     public UNIT_TYPE unitType;
     public GameObject prefab;
+    public Player player;
 
     public int Strenth = 8;
 

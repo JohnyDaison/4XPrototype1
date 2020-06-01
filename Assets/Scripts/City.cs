@@ -4,6 +4,8 @@ using UnityEngine;
 public class City : MapObject {
     float productionPerTurn = 50;
 
+    public Player player;
+
     BuildingJob buildingJob;
     Unit lastBuiltUnit;
 
@@ -95,7 +97,7 @@ public class City : MapObject {
                 () => {
                     Unit newUnit = new Unit(unitType, prefab);
 
-                    this.Hex.HexMap.SpawnUnitAt(newUnit, this.Hex.Q, this.Hex.R);
+                    this.Hex.HexMap.SpawnUnitAt(newUnit, this.Hex.Q, this.Hex.R, this.player);
                     lastBuiltUnit = newUnit;
                 },
                 null

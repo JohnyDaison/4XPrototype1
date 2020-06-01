@@ -14,6 +14,7 @@ public class MapObject
     public int HitPoints = 100;
     public bool CanBeAttacked = true;
     public int FactionID = 0;
+    public bool AnimationIsPlaying = false;
 
     public bool IsDestroyed { get; private set; }
 

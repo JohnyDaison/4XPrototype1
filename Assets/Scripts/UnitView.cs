@@ -45,7 +45,7 @@ public class UnitView : MonoBehaviour {
         }
         else {
             // TODO: WE need a better signalling system and/or animation queueing
-            HexMap.AnimationIsPlaying = true;
+            Unit.AnimationIsPlaying = true;
         }
     }
 
@@ -53,7 +53,7 @@ public class UnitView : MonoBehaviour {
     void Update()
     {
         // This solves the case when Hex gets wrapped to a new position
-        if (this.transform.position != newPosition && !HexMap.AnimationIsPlaying) {
+        if (this.transform.position != newPosition && !Unit.AnimationIsPlaying) {
             newPosition = Unit.Hex.PositionFromCamera();
             newPosition.y += HexMap.GetHexGO(Unit.Hex).GetComponent<HexComponent>().VerticalOffset;
         }
@@ -63,7 +63,7 @@ public class UnitView : MonoBehaviour {
         // TODO: Figure out the best way to determine the end of our animation
         if( Vector3.Distance( this.transform.position, newPosition ) < 0.1f )
         {
-            GameObject.FindObjectOfType<HexMap>().AnimationIsPlaying = false;
+            Unit.AnimationIsPlaying = false;
         }
     }
 

@@ -15,7 +15,8 @@ public class BuildCityButton : MonoBehaviour {
             city,
             map.CityPrefab,
             sc.SelectedUnit.Hex.Q,
-            sc.SelectedUnit.Hex.R
+            sc.SelectedUnit.Hex.R,
+            map.CurrentPlayer
         );
     }
 	

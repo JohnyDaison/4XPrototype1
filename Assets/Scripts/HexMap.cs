@@ -13,8 +13,6 @@ public class HexMap : MonoBehaviour, IQPathWorld {
         GenerateMap();
 	}
 
-    public bool AnimationIsPlaying = false;
-
     public delegate void CityCreatedDelegate ( City city, GameObject cityGO );
     public event CityCreatedDelegate OnCityCreated;
 
@@ -58,7 +56,7 @@ public class HexMap : MonoBehaviour, IQPathWorld {
             Debug.Log("DoMove returned true -- will be called again.");
             // TODO: Check to see if an animation is playing, if so
             // wait for it to finish. 
-            while(AnimationIsPlaying) {
+            while(u.AnimationIsPlaying) {
                 yield return null; // Wait one frame
             }
 
@@ -371,7 +369,7 @@ public class HexMap : MonoBehaviour, IQPathWorld {
         return results.ToArray();
     }
 
-    public void SpawnUnitAt( Unit unit, int q, int r )
+    public void SpawnUnitAt( Unit unit, int q, int r, Player player)
     {
         if(unitToGameObjectMap == null)
         {
@@ -388,7 +386,8 @@ public class HexMap : MonoBehaviour, IQPathWorld {
         unitView.Unit = unit;
         unitView.HexMap = this;
 
-        CurrentPlayer.AddUnit(unit);
+        unit.player = player;
+        player.AddUnit(unit);
         unit.OnObjectDestroyed += OnUnitDestroyed;
         unitToGameObjectMap.Add(unit, unitGO);
     }
@@ -400,7 +399,7 @@ public class HexMap : MonoBehaviour, IQPathWorld {
         Destroy(go);
     }
 
-    public void SpawnCityAt( City city, GameObject prefab, int q, int r )
+    public void SpawnCityAt( City city, GameObject prefab, int q, int r, Player player)
     {
         Debug.Log("SpawnCityAt");
         if(cityToGameObjectMap == null)
@@ -426,7 +425,8 @@ public class HexMap : MonoBehaviour, IQPathWorld {
 
         GameObject cityGO = Instantiate(prefab, cityPosition, Quaternion.identity, myHexGO.transform);
 
-        CurrentPlayer.AddCity(city);
+        city.player = player;
+        player.AddCity(city);
         city.OnObjectDestroyed += OnCityDestroyed;
         cityToGameObjectMap.Add(city, cityGO);
 
