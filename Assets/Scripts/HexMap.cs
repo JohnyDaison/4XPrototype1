@@ -16,6 +16,9 @@ public class HexMap : MonoBehaviour, IQPathWorld {
     public delegate void CityCreatedDelegate ( City city, GameObject cityGO );
     public event CityCreatedDelegate OnCityCreated;
 
+    public delegate void UnitCreatedDelegate ( Unit unit, GameObject unitGO );
+    public event UnitCreatedDelegate OnUnitCreated;
+
     void GeneratePlayers( int numPlayers )
     {
         Players = new Player[numPlayers];
@@ -390,6 +393,11 @@ public class HexMap : MonoBehaviour, IQPathWorld {
         player.AddUnit(unit);
         unit.OnObjectDestroyed += OnUnitDestroyed;
         unitToGameObjectMap.Add(unit, unitGO);
+
+        if(OnUnitCreated != null)
+        {
+            OnUnitCreated(unit, unitGO);
+        }
     }
 
     public void OnUnitDestroyed( MapObject mo )
