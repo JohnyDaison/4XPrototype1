@@ -6,7 +6,7 @@ using UnityEngine;
 public class HexMap : MonoBehaviour, IQPathWorld {
 
 	// Use this for initialization
-	void Start () {
+	protected virtual void Start () {
 
         GeneratePlayers( 6 );
 
@@ -276,56 +276,6 @@ public class HexMap : MonoBehaviour, IQPathWorld {
                 MeshRenderer mr = hexGO.GetComponentInChildren<MeshRenderer>();
                 MeshFilter mf = hexGO.GetComponentInChildren<MeshFilter>();
 
-
-                if(h.Elevation >= HeightFlat && h.Elevation < HeightMountain)
-                {
-                    if(h.Moisture >= MoistureJungle)
-                    {
-                        mr.material = MatGrasslands;
-                        h.TerrainType = Hex.TERRAIN_TYPE.GRASSLANDS;
-                        h.FeatureType = Hex.FEATURE_TYPE.RAINFOREST;
-
-                        // Spawn trees
-                        Vector3 p = hexGO.transform.position;
-                        if(h.Elevation >= HeightHill)
-                        {
-                            p.y += 0.25f;
-                        }
-
-
-                        GameObject.Instantiate(JunglePrefab, p, Quaternion.identity, hexGO.transform);
-                    }
-                    else if(h.Moisture >= MoistureForest)
-                    {
-                        mr.material = MatGrasslands;
-                        h.TerrainType = Hex.TERRAIN_TYPE.GRASSLANDS;
-                        h.FeatureType = Hex.FEATURE_TYPE.FOREST;
-
-                        // Spawn trees
-                        Vector3 p = hexGO.transform.position;
-                        if(h.Elevation >= HeightHill)
-                        {
-                            p.y += 0.25f;
-                        }
-                        GameObject.Instantiate(ForestPrefab, p, Quaternion.identity, hexGO.transform);
-                    }
-                    else if(h.Moisture >= MoistureGrasslands)
-                    {
-                        mr.material = MatGrasslands;
-                        h.TerrainType = Hex.TERRAIN_TYPE.GRASSLANDS;
-                    }
-                    else if(h.Moisture >= MoisturePlains)
-                    {
-                        mr.material = MatPlains;
-                        h.TerrainType = Hex.TERRAIN_TYPE.PLAINS;
-                    }
-                    else 
-                    {
-                        mr.material = MatDesert;
-                        h.TerrainType = Hex.TERRAIN_TYPE.DESERT;
-                    }
-                }
-
                 if(h.Elevation >= HeightMountain)
                 {
                     mr.material = MatMountains;
@@ -348,6 +298,49 @@ public class HexMap : MonoBehaviour, IQPathWorld {
                     h.ElevationType = Hex.ELEVATION_TYPE.WATER;
                     mr.material = MatOcean;
                     mf.mesh = MeshWater;
+                }
+
+                if(h.Elevation >= HeightFlat && h.Elevation < HeightMountain)
+                {
+                    if(h.Moisture >= MoistureJungle)
+                    {
+                        mr.material = MatGrasslands;
+                        h.TerrainType = Hex.TERRAIN_TYPE.GRASSLANDS;
+                        h.FeatureType = Hex.FEATURE_TYPE.RAINFOREST;
+
+                        // Spawn trees
+                        Vector3 p = hexGO.transform.position;
+                        p.y += hexComp.VerticalOffset;
+
+                        GameObject.Instantiate(JunglePrefab, p, Quaternion.identity, hexGO.transform);
+                    }
+                    else if(h.Moisture >= MoistureForest)
+                    {
+                        mr.material = MatGrasslands;
+                        h.TerrainType = Hex.TERRAIN_TYPE.GRASSLANDS;
+                        h.FeatureType = Hex.FEATURE_TYPE.FOREST;
+
+                        // Spawn trees
+                        Vector3 p = hexGO.transform.position;
+                        p.y += hexComp.VerticalOffset;
+
+                        GameObject.Instantiate(ForestPrefab, p, Quaternion.identity, hexGO.transform);
+                    }
+                    else if(h.Moisture >= MoistureGrasslands)
+                    {
+                        mr.material = MatGrasslands;
+                        h.TerrainType = Hex.TERRAIN_TYPE.GRASSLANDS;
+                    }
+                    else if(h.Moisture >= MoisturePlains)
+                    {
+                        mr.material = MatPlains;
+                        h.TerrainType = Hex.TERRAIN_TYPE.PLAINS;
+                    }
+                    else 
+                    {
+                        mr.material = MatDesert;
+                        h.TerrainType = Hex.TERRAIN_TYPE.DESERT;
+                    }
                 }
 
                 hexGO.GetComponentInChildren<TextMesh>().text = 

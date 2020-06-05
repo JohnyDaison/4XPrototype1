@@ -1,8 +1,15 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class HexMap_Continent : HexMap {
 
     public GameObject mainCamera;
+
+    public List<HexPerlinNoiseType> hexNoiseTypes = new List<HexPerlinNoiseType>();
+
+    override protected void Start() {
+        base.Start();
+    }
 
     override public void GenerateMap()
     {
@@ -16,6 +23,7 @@ public class HexMap_Continent : HexMap {
             1307101566 - start on the coast
             390098444 - start on peninsula
             1570814268 - a lot of mountains on perimeter
+            1175914183 - nice terrain
         */
 
         int seed = Random.Range(0, int.MaxValue);
@@ -37,47 +45,38 @@ public class HexMap_Continent : HexMap {
 
         }
 
-        // Add lumpiness Perlin Noise?
-        float noiseResolution = 0.01f;
+        if(hexNoiseTypes.Count == 0) {
+            hexNoiseTypes.Add(new HexPerlinNoiseType(
+                Hex.HEX_FLOAT_PARAMS.Elevation, 
+                0.01f, 
+                new Vector2( Random.Range(0f, 1f), Random.Range(0f, 1f) ), 
+                2f)); // Larger values makes more islands (and lakes, I guess)
+
+            hexNoiseTypes.Add(new HexPerlinNoiseType(
+                Hex.HEX_FLOAT_PARAMS.Moisture, 
+                0.05f, 
+                new Vector2( Random.Range(0f, 1f), Random.Range(0f, 1f) ), 
+                2f));
+        }
+
         float maxCoordinate = Mathf.Max(NumColumns,NumRows);
-        Vector2 noiseOffset = new Vector2( Random.Range(0f, 1f), Random.Range(0f, 1f) ); 
-
-        float noiseScale = 2f;  // Larger values makes more islands (and lakes, I guess)
-
 
         for (int column = 0; column < NumColumns; column++)
         {
             for (int row = 0; row < NumRows; row++)
             {
-                Hex h = GetHexAt(column, row);
-                float n = 
-                    Mathf.PerlinNoise( ((column/maxCoordinate) / noiseResolution) + noiseOffset.x,
-                        ((row/maxCoordinate) / noiseResolution) + noiseOffset.y )
+                Hex hex = GetHexAt(column, row);
+
+                hexNoiseTypes.ForEach((HexPerlinNoiseType noiseType) => {
+                    float noiseValue = 
+                        Mathf.PerlinNoise( ((column/maxCoordinate) / noiseType.NoiseResolution) + noiseType.NoiseOffset.x,
+                            ((row/maxCoordinate) / noiseType.NoiseResolution) + noiseType.NoiseOffset.y )
                     - 0.5f;
-                h.Elevation += n * noiseScale;
+
+                    hex.floatParams[noiseType.HexParam] += noiseValue * noiseType.NoiseScale;
+                });
             }
         }
-
-        // Simulate rainfall/moisture (probably just Perlin it for now) and set plains/grasslands + forest 
-        noiseResolution = 0.05f;
-        noiseOffset = new Vector2( Random.Range(0f, 1f), Random.Range(0f, 1f) ); 
-
-        noiseScale = 2f;  // Larger values makes more islands (and lakes, I guess)
-
-
-        for (int column = 0; column < NumColumns; column++)
-        {
-            for (int row = 0; row < NumRows; row++)
-            {
-                Hex h = GetHexAt(column, row);
-                float n = 
-                    Mathf.PerlinNoise( ((float)column/Mathf.Max(NumColumns,NumRows) / noiseResolution) + noiseOffset.x, 
-                        ((float)row/Mathf.Max(NumColumns,NumRows) / noiseResolution) + noiseOffset.y )
-                    - 0.5f;
-                h.Moisture = n * noiseScale;
-            }
-        }
-
 
         // Now make sure all the hex visuals are updated to match the data.
 
@@ -138,16 +137,22 @@ public class HexMap_Continent : HexMap {
 
     void ElevateArea(int q, int r, int range, float centerHeight = .8f)
     {
+        float minHeightCoef = 0.25f;
+        float maxHeightCoef = 1f;
+        
         Hex centerHex = GetHexAt(q, r);
 
         Hex[] areaHexes = GetHexesWithinRangeOf(centerHex, range);
 
-        foreach(Hex h in areaHexes)
+        foreach(Hex hex in areaHexes)
         {
             //if(h.Elevation < 0)
                 //h.Elevation = 0;
             
-            h.Elevation = centerHeight * Mathf.Lerp( 1f, 0.25f, Mathf.Pow(Hex.Distance(centerHex, h) / range,2f) );
+            float distanceRatio = Hex.Distance(centerHex, hex) / range;
+            float distanceCoef = Mathf.Pow(distanceRatio, 2f);
+
+            hex.Elevation = centerHeight * Mathf.Lerp( maxHeightCoef, minHeightCoef, distanceCoef);
         }
     }
 

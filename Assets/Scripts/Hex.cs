@@ -19,6 +19,9 @@ public class Hex : IQPathTile {
         this.S = -(q + r);
 
         units = new HashSet<Unit>();
+
+        floatParams[HEX_FLOAT_PARAMS.Elevation] = 0;
+        floatParams[HEX_FLOAT_PARAMS.Moisture] = 0;
     }
 
     // Q + R + S = 0
@@ -29,8 +32,27 @@ public class Hex : IQPathTile {
     public readonly int S;
 
     // Data for map generation and maybe in-game effects
-    public float Elevation;
-    public float Moisture;
+    public enum HEX_FLOAT_PARAMS { Elevation, Moisture };
+    public Dictionary<HEX_FLOAT_PARAMS, float> floatParams = new Dictionary<HEX_FLOAT_PARAMS, float>();
+    
+    public float Elevation {
+        get {
+            return floatParams[HEX_FLOAT_PARAMS.Elevation];
+        }
+
+        set {
+            floatParams[HEX_FLOAT_PARAMS.Elevation] = value;
+        }
+    }
+    public float Moisture {
+        get {
+            return floatParams[HEX_FLOAT_PARAMS.Moisture];
+        }
+
+        set {
+            floatParams[HEX_FLOAT_PARAMS.Moisture] = value;
+        }
+    }
 
     public enum TERRAIN_TYPE { PLAINS, GRASSLANDS, MARSH, FLOODPLAINS, DESERT, LAKE, OCEAN }
     public enum ELEVATION_TYPE { FLAT, HILL, MOUNTAIN, WATER }
