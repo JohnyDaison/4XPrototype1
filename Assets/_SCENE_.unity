@@ -624,6 +624,7 @@ MonoBehaviour:
   MatOcean: {fileID: 2100000, guid: 2f0b3d2adf6521c4581974ee9a2f11c9, type: 2}
   MatPlains: {fileID: 2100000, guid: 02459ed6d7e9a194ba4a83032cd2b6ac, type: 2}
   MatGrasslands: {fileID: 2100000, guid: 48bc4fa349e475a47969919bf72835b5, type: 2}
+  MatJungle: {fileID: 2100000, guid: 9d01a6081b3d95341a1fc3d44d2f8a84, type: 2}
   MatMountains: {fileID: 2100000, guid: 3d715d2ca0d78444d9d0c76ac0003963, type: 2}
   MatDesert: {fileID: 2100000, guid: 6ab78643840c5ba478dbe42e382f67e7, type: 2}
   UnitDwarfPrefab: {fileID: 1007044073753460, guid: f3a3811cd21e6a64a9483be571975c26,

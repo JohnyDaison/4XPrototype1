@@ -16,19 +16,47 @@ public class HexMap_Continent : HexMap {
         // First, call the base version to make all the hexes we need
         base.GenerateMap();
 
-        int numContinents = 3;
-        int continentSpacing = NumColumns / numContinents;
-
         /*  Interesting seeds
             1307101566 - start on the coast
             390098444 - start on peninsula
             1570814268 - a lot of mountains on perimeter
             1175914183 - nice terrain
+            1791841673 - interesting terrain
         */
 
         int seed = Random.Range(0, int.MaxValue);
         Random.InitState(seed);
         Debug.LogFormat("seed: {0}", seed);
+
+        CreateContinents(3);
+
+        DefineHexNoiseTypes();
+
+        ApplyHexNoiseTypes();
+
+        // Now make sure all the hex visuals are updated to match the data.
+
+        UpdateHexVisuals();
+
+        // foreach (Player p in Players) {
+        //     CreateStartingUnit(p);
+        // }
+
+        CreateStartingUnit(CurrentPlayer);
+    }
+
+    void CreateContinents(int numContinents) {
+        int continentSpacing = NumColumns / numContinents;
+
+        // Set base ocean elevation
+        for (int column = 0; column < NumColumns; column++)
+        {
+            for (int row = 0; row < NumRows; row++)
+            {
+                Hex hex = GetHexAt(column, row);
+                hex.Elevation = -0.5f;
+            }
+        }
 
         for (int c = 0; c < numContinents; c++)
         {
@@ -44,21 +72,29 @@ public class HexMap_Continent : HexMap {
             }
 
         }
+    }
 
-        if(hexNoiseTypes.Count == 0) {
-            hexNoiseTypes.Add(new HexPerlinNoiseType(
-                Hex.HEX_FLOAT_PARAMS.Elevation, 
-                0.01f, 
-                new Vector2( Random.Range(0f, 1f), Random.Range(0f, 1f) ), 
-                2f)); // Larger values makes more islands (and lakes, I guess)
-
-            hexNoiseTypes.Add(new HexPerlinNoiseType(
-                Hex.HEX_FLOAT_PARAMS.Moisture, 
-                0.05f, 
-                new Vector2( Random.Range(0f, 1f), Random.Range(0f, 1f) ), 
-                2f));
+    void DefineHexNoiseTypes() {
+        if(hexNoiseTypes.Count > 0) {
+            return;
         }
+        
+        hexNoiseTypes.Add(new HexPerlinNoiseType(
+            Hex.HEX_FLOAT_PARAMS.Elevation, 
+            0.01f, 
+            new Vector2( Random.Range(0f, 1f), Random.Range(0f, 1f) ), 
+            2f,
+            -1f));
 
+        hexNoiseTypes.Add(new HexPerlinNoiseType(
+            Hex.HEX_FLOAT_PARAMS.Moisture, 
+            0.05f, 
+            new Vector2( Random.Range(0f, 1f), Random.Range(0f, 1f) ), 
+            1f,
+            0f));
+    }
+
+    void ApplyHexNoiseTypes() {
         float maxCoordinate = Mathf.Max(NumColumns,NumRows);
 
         for (int column = 0; column < NumColumns; column++)
@@ -70,43 +106,39 @@ public class HexMap_Continent : HexMap {
                 hexNoiseTypes.ForEach((HexPerlinNoiseType noiseType) => {
                     float noiseValue = 
                         Mathf.PerlinNoise( ((column/maxCoordinate) / noiseType.NoiseResolution) + noiseType.NoiseOffset.x,
-                            ((row/maxCoordinate) / noiseType.NoiseResolution) + noiseType.NoiseOffset.y )
-                    - 0.5f;
+                            ((row/maxCoordinate) / noiseType.NoiseResolution) + noiseType.NoiseOffset.y );
 
-                    hex.floatParams[noiseType.HexParam] += noiseValue * noiseType.NoiseScale;
+                     // According to documentation, values slightly out range can happen, so prevent it
+                    noiseValue = Mathf.Clamp(noiseValue, 0f, 1f);
+
+                    hex.floatParams[noiseType.HexParam] += (noiseValue * noiseType.NoiseScale) + noiseType.NoiseValueOffset;
                 });
             }
         }
-
-        // Now make sure all the hex visuals are updated to match the data.
-
-        UpdateHexVisuals();
-
-        // foreach (Player p in Players) {
-        //     CreateStartingUnit(p);
-        // }
-
-        CreateStartingUnit(CurrentPlayer);
     }
 
     void CreateStartingUnit(Player player) {
         Unit unit = new Unit(Unit.UNIT_TYPE.HUMAN, UnitHumanPrefab);
 
-        // For development, turn on CanBuildCities on this unit
-        unit.CanBuildCities = true;
-
         int startQ, startR;
+        int tries = 0, maxTries = 100;
+        bool positionFound = false;
 
         do {
             startQ = Random.Range(0, NumColumns);
             startR = Random.Range(0, NumRows);
+            tries++;
+            positionFound = IsValidStartingPosition(startQ, startR);
         }
-        while (!IsValidStartingPosition(startQ, startR));
+        while (!positionFound && tries <= maxTries);
 
-        SpawnUnitAt(unit, startQ, startR, player);
+        if (positionFound)
+        {
+            SpawnUnitAt(unit, startQ, startR, player);
 
-        if(player == CurrentPlayer) {
-            PanCameraToPosition(startQ, startR);
+            if(player == CurrentPlayer) {
+                PanCameraToPosition(startQ, startR);
+            }
         }
     }
 

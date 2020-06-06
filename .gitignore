@@ -76,5 +76,5 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 
-# VS Code debug file
-.vscode/launch.json
+# VS Code editor files
+.vscode/

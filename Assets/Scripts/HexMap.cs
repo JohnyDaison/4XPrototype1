@@ -80,6 +80,7 @@ public class HexMap : MonoBehaviour, IQPathWorld {
     public Material MatOcean;
     public Material MatPlains;
     public Material MatGrasslands;
+    public Material MatJungle;
     public Material MatMountains;
     public Material MatDesert;
 
@@ -94,10 +95,10 @@ public class HexMap : MonoBehaviour, IQPathWorld {
     [System.NonSerialized] public float HeightHill = 0.6f;
     [System.NonSerialized] public float HeightFlat = 0.0f;
 
-    [System.NonSerialized] public float MoistureJungle = 0.75f;
-    [System.NonSerialized] public float MoistureForest = 0.5f;
-    [System.NonSerialized] public float MoistureGrasslands = 0f;
-    [System.NonSerialized] public float MoisturePlains = -0.75f;
+    [System.NonSerialized] public float MoistureJungle = 0.875f;
+    [System.NonSerialized] public float MoistureForest = 0.75f;
+    [System.NonSerialized] public float MoistureGrasslands = 0.5f;
+    [System.NonSerialized] public float MoisturePlains = 0.125f;
 
     [System.NonSerialized] public int NumRows = 30;
     [System.NonSerialized] public int NumColumns = 60;
@@ -226,7 +227,6 @@ public class HexMap : MonoBehaviour, IQPathWorld {
             {
                 // Instantiate a Hex
                 Hex h = new Hex( this, column, row );
-                h.Elevation = -0.5f;
 
                 hexes[ column, row ] = h;
 
@@ -304,7 +304,7 @@ public class HexMap : MonoBehaviour, IQPathWorld {
                 {
                     if(h.Moisture >= MoistureJungle)
                     {
-                        mr.material = MatGrasslands;
+                        mr.material = MatJungle;
                         h.TerrainType = Hex.TERRAIN_TYPE.GRASSLANDS;
                         h.FeatureType = Hex.FEATURE_TYPE.RAINFOREST;
 
