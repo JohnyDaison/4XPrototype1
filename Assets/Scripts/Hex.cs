@@ -22,6 +22,7 @@ public class Hex : IQPathTile {
 
         floatParams[HEX_FLOAT_PARAMS.Elevation] = 0;
         floatParams[HEX_FLOAT_PARAMS.Moisture] = 0;
+        floatParams[HEX_FLOAT_PARAMS.IronOre] = 0;
     }
 
     // Q + R + S = 0
@@ -32,7 +33,7 @@ public class Hex : IQPathTile {
     public readonly int S;
 
     // Data for map generation and maybe in-game effects
-    public enum HEX_FLOAT_PARAMS { Elevation, Moisture };
+    public enum HEX_FLOAT_PARAMS { Elevation, Moisture, IronOre };
     public Dictionary<HEX_FLOAT_PARAMS, float> floatParams = new Dictionary<HEX_FLOAT_PARAMS, float>();
     
     public float Elevation {

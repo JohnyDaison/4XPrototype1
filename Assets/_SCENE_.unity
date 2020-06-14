@@ -621,6 +621,8 @@ MonoBehaviour:
     type: 3}
   JunglePrefab: {fileID: 1638819778573062, guid: 831556d6b101ea344861eed3f8555525,
     type: 3}
+  OrePrefab: {fileID: 8843159753013540530, guid: 467c888c8da08314fbe912417636e757,
+    type: 3}
   MatOcean: {fileID: 2100000, guid: 2f0b3d2adf6521c4581974ee9a2f11c9, type: 2}
   MatPlains: {fileID: 2100000, guid: 02459ed6d7e9a194ba4a83032cd2b6ac, type: 2}
   MatGrasslands: {fileID: 2100000, guid: 48bc4fa349e475a47969919bf72835b5, type: 2}

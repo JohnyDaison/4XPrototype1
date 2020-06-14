@@ -92,6 +92,13 @@ public class HexMap_Continent : HexMap {
             new Vector2( Random.Range(0f, 1f), Random.Range(0f, 1f) ), 
             1f,
             0f));
+
+        hexNoiseTypes.Add(new HexPerlinNoiseType(
+            Hex.HEX_FLOAT_PARAMS.IronOre, 
+            0.01f, 
+            new Vector2( Random.Range(0f, 1f), Random.Range(0f, 1f) ), 
+            1f,
+            0));
     }
 
     void ApplyHexNoiseTypes() {
