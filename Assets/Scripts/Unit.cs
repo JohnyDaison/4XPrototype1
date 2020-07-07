@@ -19,7 +19,7 @@ public class Unit : MapObject, IQPathUnit {
     public GameObject prefab;
     public Player player;
 
-    public int Strenth = 8;
+    public int Strength = 8;
 
     public int Movement = 2;
     public int MovementRemaining = 2;

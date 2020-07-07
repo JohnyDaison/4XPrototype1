@@ -633,6 +633,8 @@ MonoBehaviour:
     type: 3}
   UnitHumanPrefab: {fileID: 948121384372405819, guid: f4e6c1314d98d624db94abf38f372bbe,
     type: 3}
+  UnitToucanPrefab: {fileID: 888619844252895451, guid: f92f733471364804ab1f131050871547,
+    type: 3}
   CityPrefab: {fileID: 1746324835566456, guid: dc4b6f263ddd5f449a90c6f0ec9cea66, type: 3}
   TurnNumber: 0
   mainCamera: {fileID: 1106650761}

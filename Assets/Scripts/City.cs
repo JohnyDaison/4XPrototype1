@@ -59,11 +59,11 @@ public class City : MapObject {
             buildUnit(Unit.UNIT_TYPE.DWARF);
         }
 
-        // For testing, build one human after the dwarf
+        // For testing, build one toucan after the dwarf
         if (buildingJob == null && lastBuiltUnit != null)
         {
             if (lastBuiltUnit.unitType == Unit.UNIT_TYPE.DWARF) {
-                buildUnit(Unit.UNIT_TYPE.HUMAN);
+                buildUnit(Unit.UNIT_TYPE.TOUCAN);
             }
         }
     }
@@ -131,6 +131,9 @@ public class City : MapObject {
             case Unit.UNIT_TYPE.DWARF:
                 prefab = this.Hex.HexMap.UnitDwarfPrefab;
                 break;
+            case Unit.UNIT_TYPE.TOUCAN:
+                prefab = this.Hex.HexMap.UnitToucanPrefab;
+                break;
         }
 
         return prefab;
@@ -144,6 +147,9 @@ public class City : MapObject {
                 cost = 100f;
                 break;
             case Unit.UNIT_TYPE.DWARF:
+                cost = 100f;
+                break;
+            case Unit.UNIT_TYPE.TOUCAN:
                 cost = 100f;
                 break;
         }

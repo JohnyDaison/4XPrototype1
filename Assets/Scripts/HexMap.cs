@@ -87,6 +87,8 @@ public class HexMap : MonoBehaviour, IQPathWorld {
 
     public GameObject UnitDwarfPrefab;
     public GameObject UnitHumanPrefab;
+    public GameObject UnitToucanPrefab;
+
     public GameObject CityPrefab;
 
     public int TurnNumber = 0;
@@ -294,6 +296,7 @@ public class HexMap : MonoBehaviour, IQPathWorld {
             mr.material = MatMountains;
             mf.mesh = MeshMountain;
             hex.ElevationType = Hex.ELEVATION_TYPE.MOUNTAIN;
+            hexComp.VerticalOffset = 0.83f;
         }
         else if(hex.Elevation >= HeightHill)
         {
