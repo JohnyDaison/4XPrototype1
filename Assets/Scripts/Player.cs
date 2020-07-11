@@ -12,6 +12,7 @@ public class Player
 
         units = new HashSet<Unit>();
         cities = new HashSet<City>();
+        structures = new HashSet<SurfaceStructure>();
     }
 
     public string PlayerName;
@@ -21,12 +22,16 @@ public class Player
 
     private HashSet<Unit> units;
     private HashSet<City> cities;
+    private HashSet<SurfaceStructure> structures;
 
     public Unit[] Units {
         get { return units.ToArray(); }
     }
     public City[] Cities {
         get { return cities.ToArray(); }
+    }
+    public SurfaceStructure[] Structures {
+        get { return structures.ToArray(); }
     }
 
     public void AddUnit( Unit u )
@@ -51,6 +56,16 @@ public class Player
         cities.Remove( (City)mo );
     }
 
+    public void AddStructure ( SurfaceStructure c )
+    {
+        structures.Add(c);
+        c.OnObjectDestroyed += OnStructureDestroyed;
+    }
+
+    public void OnStructureDestroyed( MapObject mo )
+    {
+        structures.Remove( (SurfaceStructure)mo );
+    }
 
 }
 

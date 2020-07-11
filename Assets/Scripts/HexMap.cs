@@ -19,6 +19,10 @@ public class HexMap : MonoBehaviour, IQPathWorld {
     public delegate void UnitCreatedDelegate ( Unit unit, GameObject unitGO );
     public event UnitCreatedDelegate OnUnitCreated;
 
+    public delegate void StructureCreatedDelegate ( SurfaceStructure structure, GameObject structureGO );
+    public event StructureCreatedDelegate OnStructureCreated;
+
+
     void GeneratePlayers( int numPlayers )
     {
         Players = new Player[numPlayers];
@@ -90,6 +94,8 @@ public class HexMap : MonoBehaviour, IQPathWorld {
     public GameObject UnitToucanPrefab;
 
     public GameObject CityPrefab;
+    public GameObject WarehousePrefab;
+    public GameObject OreMinePrefab;
 
     public int TurnNumber = 0;
 
@@ -139,6 +145,7 @@ public class HexMap : MonoBehaviour, IQPathWorld {
 
     private Dictionary<Unit, GameObject> unitToGameObjectMap;
     private Dictionary<City, GameObject> cityToGameObjectMap;
+    private Dictionary<SurfaceStructure, GameObject> structureToGameObjectMap;
 
     public Hex GetHexAt(int x, int y)
     {
@@ -483,5 +490,48 @@ public class HexMap : MonoBehaviour, IQPathWorld {
         Destroy(go);
     }
 
+    public void SpawnStructureAt( SurfaceStructure structure, GameObject prefab, int q, int r, Player player)
+    {
+        Debug.Log("SpawnStructureAt");
+        if(structureToGameObjectMap == null)
+        {
+            structureToGameObjectMap = new Dictionary<SurfaceStructure, GameObject>();
+        }
+
+        Hex myHex = GetHexAt(q, r);
+        GameObject myHexGO = hexToGameObjectMap[myHex];
+
+        try
+        {
+            structure.SetHex(myHex);
+        }
+        catch(UnityException e)
+        {
+            Debug.LogError(e.Message);
+            return;
+        }
+
+        Vector3 structurePosition = myHexGO.transform.position;
+        structurePosition.y += myHexGO.GetComponent<HexComponent>().VerticalOffset;
+
+        GameObject structureGO = Instantiate(prefab, structurePosition, Quaternion.identity, myHexGO.transform);
+
+        structure.player = player;
+        player.AddStructure(structure);
+        structure.OnObjectDestroyed += OnStructureDestroyed;
+        structureToGameObjectMap.Add(structure, structureGO);
+
+        if(OnStructureCreated != null)
+        {
+            OnStructureCreated(structure, structureGO);
+        }
+    }
+
+    public void OnStructureDestroyed( MapObject mo )
+    {
+        GameObject go = structureToGameObjectMap[(SurfaceStructure)mo];
+        structureToGameObjectMap.Remove((SurfaceStructure)mo);
+        Destroy(go);
+    }
 
 }
