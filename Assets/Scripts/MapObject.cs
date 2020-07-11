@@ -4,7 +4,7 @@ using UnityEngine;
 using QPath;
 using System.Linq;
 
-public class MapObject
+public abstract class MapObject
 {
     public MapObject()
     {

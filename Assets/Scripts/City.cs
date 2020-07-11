@@ -1,10 +1,8 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class City : MapObject {
+public class City : SurfaceStructure {
     float productionPerTurn = 50;
-
-    public Player player;
 
     BuildingJob buildingJob;
     Unit lastBuiltUnit;

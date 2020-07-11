@@ -77,6 +77,7 @@ public class Hex : IQPathTile {
             return units.ToArray();
         }
     }
+    public SurfaceStructure SurfaceStructure { get; protected set; }
     public City City { get; protected set; }
 
     public override string ToString()
@@ -242,11 +243,38 @@ public class Hex : IQPathTile {
 
         if(this.City != city)
         {
-            Debug.LogError("Trying to remove a city that isn't ours!");
+            Debug.LogError("Trying to remove a different city!");
             return;
         }
 
         this.City = null;
+    }
+
+    public void AddSurfaceStructure( SurfaceStructure surfaceStructure )
+    {
+        if(this.SurfaceStructure != null)
+        {
+            throw new UnityException("Trying to add a surface structure to a hex that already has one!");
+        }
+
+        this.SurfaceStructure = surfaceStructure;
+    }
+
+    public void RemoveSurfaceStructure( SurfaceStructure surfaceStructure )
+    {
+        if(this.SurfaceStructure == null)
+        {
+            Debug.LogError("Trying to remove a surface structure where there isn't one!");
+            return;
+        }
+
+        if(this.SurfaceStructure != surfaceStructure)
+        {
+            Debug.LogError("Trying to remove a different surface structure!");
+            return;
+        }
+
+        this.SurfaceStructure = null;
     }
 
     /// <summary>
