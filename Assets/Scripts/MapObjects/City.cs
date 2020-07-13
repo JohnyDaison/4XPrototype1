@@ -54,14 +54,14 @@ public class City : SurfaceStructure {
         // For testing, build one dwarf
         if (buildingJob == null && lastBuiltUnit == null)
         {
-            buildUnit(Unit.UNIT_TYPE.DWARF);
+            buildUnit("dwarf1");
         }
 
         // For testing, build one toucan after the dwarf
         if (buildingJob == null && lastBuiltUnit != null)
         {
-            if (lastBuiltUnit.unitType == Unit.UNIT_TYPE.DWARF) {
-                buildUnit(Unit.UNIT_TYPE.TOUCAN);
+            if (lastBuiltUnit.unitType.id == "dwarf1") {
+                buildUnit("toucan1");
             }
         }
     }
@@ -76,7 +76,12 @@ public class City : SurfaceStructure {
         return (buildingJob != null && buildingJob.workLeft > 0);
     }
 
-    bool buildUnit(Unit.UNIT_TYPE unitType) {
+    bool buildUnit(string unitTypeId) {
+        UnitType unitType = GameController.instance.UnitTypeDB.GetUnitTypeById(unitTypeId);
+        if (unitType == null) {
+            return false;
+        }
+
         if (cannotAddBuildingJob()) {
             return false;
         }
@@ -104,32 +109,21 @@ public class City : SurfaceStructure {
         return true;
     }
 
-    string getUnitBuildName(Unit.UNIT_TYPE unitType) {
-        string buildName = "Building A Unit";
-
-        switch (unitType) {
-            case Unit.UNIT_TYPE.HUMAN:
-                buildName = "Human worker";
-                break;
-            case Unit.UNIT_TYPE.DWARF:
-                buildName = "Dwarf Warrior";
-                break;
-        }
-
-        return buildName;
+    string getUnitBuildName(UnitType unitType) {
+        return "Building " + unitType.name;
     }
 
-    GameObject getUnitPrefab(Unit.UNIT_TYPE unitType) {
+    GameObject getUnitPrefab(UnitType unitType) {
         GameObject prefab = null;
 
-        switch (unitType) {
-            case Unit.UNIT_TYPE.HUMAN:
+        switch (unitType.id) {
+            case "human1":
                 prefab = this.Hex.HexMap.UnitHumanPrefab;
                 break;
-            case Unit.UNIT_TYPE.DWARF:
+            case "dwarf1":
                 prefab = this.Hex.HexMap.UnitDwarfPrefab;
                 break;
-            case Unit.UNIT_TYPE.TOUCAN:
+            case "toucan1":
                 prefab = this.Hex.HexMap.UnitToucanPrefab;
                 break;
         }
@@ -137,22 +131,8 @@ public class City : SurfaceStructure {
         return prefab;
     }
 
-    float getUnitCost(Unit.UNIT_TYPE unitType) {
-        float cost = 1f;
-
-        switch (unitType) {
-            case Unit.UNIT_TYPE.HUMAN:
-                cost = 100f;
-                break;
-            case Unit.UNIT_TYPE.DWARF:
-                cost = 100f;
-                break;
-            case Unit.UNIT_TYPE.TOUCAN:
-                cost = 100f;
-                break;
-        }
-
-        return cost;
+    float getUnitCost(UnitType unitType) {
+        return unitType.cost;
     }
 }
 

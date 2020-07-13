@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Unit : MapObject, IQPathUnit {
 
-    public Unit(UNIT_TYPE unitType, GameObject prefab = null)
+    public Unit(UnitType unitType, GameObject prefab = null)
     {
         this.unitType = unitType;
         this.prefab = prefab;
@@ -14,15 +14,12 @@ public class Unit : MapObject, IQPathUnit {
         setUnitAbilities(unitType);
     }
 
-    public enum UNIT_TYPE { HUMAN, DWARF, ELF, TOUCAN, MERMAN }
-    public UNIT_TYPE unitType;
+    public UnitType unitType;
     public GameObject prefab;
     public Player player;
 
-    public int Strength = 8;
-
-    public int Movement = 2;
-    public int MovementRemaining = 2;
+    public int Movement = 0;
+    public int MovementRemaining = 0;
 
     public bool CanBuildCities = false;
     public bool isHillWalker = false;
@@ -41,51 +38,20 @@ public class Unit : MapObject, IQPathUnit {
     // TODO: This should probably be moved to some kind of central option/config file
     const bool MOVEMENT_RULES_LIKE_CIV6 = true;
 
-    private void setUnitName(UNIT_TYPE type) {
-        switch(type) {
-            case UNIT_TYPE.HUMAN:
-                Name = "Human";
-                break;
-            case UNIT_TYPE.DWARF:
-                Name = "Dwarf";
-                break;
-            case UNIT_TYPE.ELF:
-                Name = "Elf";
-                break;
-            case UNIT_TYPE.TOUCAN:
-                Name = "Toucan";
-                break;
-            case UNIT_TYPE.MERMAN:
-                Name = "Merman";
-                break;
-            default:
-                Name = "MISSINGNO";
-                break;
-        }
-
+    private void setUnitName(UnitType type) {
+        Name = type.name;
     }
 
-    private void setUnitMovement(UNIT_TYPE type) {
-
+    private void setUnitMovement(UnitType type) {
+        Movement = type.movementPoints;
+        MovementRemaining = Movement;
     }
 
-    private void setUnitAbilities(UNIT_TYPE type) {
-        switch(type) {
-            case UNIT_TYPE.HUMAN:
-                CanBuildCities = true;
-                break;
-            case UNIT_TYPE.DWARF:
-                CanBuildCities = true;
-                isHillWalker = true;
-                break;
-            case UNIT_TYPE.ELF:
-                isForestWalker = true;
-                break;
-            case UNIT_TYPE.TOUCAN:
-                isFlier = true;
-                break;
-
-        }
+    private void setUnitAbilities(UnitType type) {
+        CanBuildCities = type.canBuildCities;
+        isHillWalker = type.isHillWalker;
+        isForestWalker = type.isForestWalker;
+        isFlier = type.isFlier;
     }
 
     public void DUMMY_PATHING_FUNCTION()

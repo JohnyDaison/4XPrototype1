@@ -125,7 +125,8 @@ public class HexMap_Continent : HexMap {
     }
 
     void CreateStartingUnit(Player player) {
-        Unit unit = new Unit(Unit.UNIT_TYPE.HUMAN, UnitHumanPrefab);
+        UnitType unitType = GameController.instance.UnitTypeDB.GetUnitTypeById("human1");
+        Unit unit = new Unit(unitType, UnitHumanPrefab);
 
         int startQ, startR;
         int tries = 0, maxTries = 100;
