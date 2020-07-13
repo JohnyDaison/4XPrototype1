@@ -89,7 +89,7 @@ public class UnitTypeDB
         type.id = "toucan1";
         type.name = "Toucan";
         type.cost = 100f;
-        type.movementPoints = 2;
+        type.movementPoints = 5;
         type.isFlier = true;
 
         return type;

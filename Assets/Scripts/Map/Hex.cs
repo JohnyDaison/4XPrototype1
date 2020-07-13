@@ -287,11 +287,13 @@ public class Hex : IQPathTile {
 
         int moveCost = 1;
 
-        if( ElevationType == ELEVATION_TYPE.HILL && isHillWalker == false )
-            moveCost += 1;
+        if (!isFlier) {
+            if( ElevationType == ELEVATION_TYPE.HILL && isHillWalker == false )
+                moveCost += 1;
 
-        if( (FeatureType == FEATURE_TYPE.FOREST || FeatureType == FEATURE_TYPE.RAINFOREST) && isForestWalker == false )
-            moveCost += 1;
+            if( (FeatureType == FEATURE_TYPE.FOREST || FeatureType == FEATURE_TYPE.RAINFOREST) && isForestWalker == false )
+                moveCost += 1;
+        }
 
         return moveCost;
     }
