@@ -6572,6 +6572,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f2a27a2144fdb247a592adfcfc29fd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hexMap: {fileID: 205379550}
 --- !u!4 &734493526
 Transform:
   m_ObjectHideFlags: 0

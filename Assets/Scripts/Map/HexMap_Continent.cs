@@ -7,8 +7,8 @@ public class HexMap_Continent : HexMap {
 
     public List<HexPerlinNoiseType> hexNoiseTypes = new List<HexPerlinNoiseType>();
 
-    override protected void Start() {
-        base.Start();
+    override public void StartGame() {
+        base.StartGame();
     }
 
     override public void GenerateMap()

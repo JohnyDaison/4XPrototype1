@@ -6,7 +6,7 @@ using UnityEngine;
 public class HexMap : MonoBehaviour, IQPathWorld {
 
 	// Use this for initialization
-	protected virtual void Start () {
+	public virtual void StartGame () {
 
         GeneratePlayers( 6 );
 
