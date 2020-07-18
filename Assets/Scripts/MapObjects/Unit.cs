@@ -173,7 +173,7 @@ public class Unit : MapObject, IQPathUnit {
         SetHex( newHex );
         MovementRemaining = Mathf.Max(MovementRemaining-costToEnter, 0);
 
-        return hexPath != null && MovementRemaining > 0;
+        return hexPath != null;
     }
 
     public int MovementCostToEnterHex( Hex hex )

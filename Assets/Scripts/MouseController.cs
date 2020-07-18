@@ -16,9 +16,12 @@ public class MouseController : MonoBehaviour
         lineRenderer = transform.GetComponentInChildren<LineRenderer>();
 
         selectionController = GameObject.FindObjectOfType<SelectionController>();
+
+        turnController = GameObject.FindObjectOfType<TurnController>();
     }
 
     SelectionController selectionController;
+    TurnController turnController;
 
     // Generic bookkeeping variables
     HexMap hexMap;
@@ -206,9 +209,7 @@ public class MouseController : MonoBehaviour
             {
                 selectionController.SelectedUnit.SetHexPath(hexPath);
 
-                // TODO: Tell Unit and/or HexMap to process unit movement
-
-                StartCoroutine( hexMap.DoUnitMoves(selectionController.SelectedUnit) );
+                turnController.MoveUnitDuringTurn(selectionController.SelectedUnit);
             }
 
             CancelUpdateFunc();
