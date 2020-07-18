@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using QPath;
 using UnityEngine;
@@ -34,41 +35,6 @@ public class HexMap : MonoBehaviour, IQPathWorld {
         //CurrentPlayer = Players[0];
         Players[0].Type = Player.PlayerType.LOCAL;
         currentPlayerIndex = 0;
-    }
-
-    void Update()
-    {
-        // TESTING: Hit spacebar to advance to next turn
-        if(Input.GetKeyDown(KeyCode.Space))
-        {
-            StartCoroutine( DoAllUnitMoves() );
-        }
-    }
-
-    IEnumerator DoAllUnitMoves()
-    {
-        foreach(Unit u in CurrentPlayer.Units)
-        {
-            yield return DoUnitMoves( u );
-        }
-    }
-
-    public IEnumerator DoUnitMoves( Unit u )
-    {
-        // Is there any reason we should check HERE if a unit should be moving?
-        // I think the answer is no -- DoMove should just check to see if it needs
-        // to do anything, or just return immediately.
-        while( u.DoMove() )
-        {
-            Debug.Log("DoMove returned true -- will be called again.");
-            // TODO: Check to see if an animation is playing, if so
-            // wait for it to finish. 
-            while(u.AnimationIsPlaying) {
-                yield return null; // Wait one frame
-            }
-
-        }
-
     }
 
     public GameObject HexPrefab;
