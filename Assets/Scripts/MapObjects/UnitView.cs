@@ -11,8 +11,10 @@ public class UnitView : MonoBehaviour {
 
     public Unit Unit;
     public HexMap HexMap;
-    Vector3 newPosition;
+    public List<GameObject> parts;
+    public List<string> partIds;
 
+    Vector3 newPosition;
     Vector3 currentVelocity;
     float smoothTime = 0.5f;
 
@@ -46,9 +48,36 @@ public class UnitView : MonoBehaviour {
         else {
             // TODO: WE need a better signalling system and/or animation queueing
             Unit.AnimationIsPlaying = true;
+            setCargoVisibility(true);
         }
     }
 
+    public bool SetPartVisibility(string partId, bool visible) {
+        int index = partIds.IndexOf(partId);
+        if(index == -1) {
+            Debug.LogWarning($"Part \"{partId}\" not found!");
+            return false;
+        }
+
+        GameObject part = parts[index];
+        if(part == null) {
+            Debug.LogWarning($"Part \"{partId}\" is missing its object in Inspector!");
+            return false;
+        }
+
+        part.SetActive(visible);
+        
+        return true;
+    }
+
+    public bool setCargoVisibility(bool visible) {
+        string cargoPartId = Unit.unitType.cargoPartId;
+        if(cargoPartId != null) {
+            return SetPartVisibility(cargoPartId, visible);
+        } else {
+            return false;
+        }
+    }
 
     void Update()
     {
@@ -64,6 +93,7 @@ public class UnitView : MonoBehaviour {
         if( Vector3.Distance( this.transform.position, newPosition ) < 0.1f )
         {
             Unit.AnimationIsPlaying = false;
+            setCargoVisibility(false);
         }
     }
 

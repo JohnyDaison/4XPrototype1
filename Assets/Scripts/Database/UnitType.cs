@@ -13,6 +13,8 @@ public class UnitType
     public float height = 0; // top to bottom
     public float cost = 0;
 
+    public string cargoPartId = null;
+
     public int movementPoints = 0;
     public bool canBuildCities = false;
     public bool isHillWalker = false;

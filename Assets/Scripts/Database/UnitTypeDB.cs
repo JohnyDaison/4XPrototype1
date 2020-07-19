@@ -44,6 +44,7 @@ public class UnitTypeDB
         AddUnitType(CreateElf());
         AddUnitType(CreateToucan());
         AddUnitType(CreateMerman());
+        AddUnitType(CreateTruck());
     }
 
     private UnitType CreateHuman() {
@@ -103,6 +104,19 @@ public class UnitTypeDB
         type.cost = 100f;
         type.movementPoints = 2;
         type.isAquatic = true;
+
+        return type;
+    }
+
+    private UnitType CreateTruck() {
+        UnitType type = new UnitType();
+
+        type.id = "truck1";
+        type.name = "Truck";
+        type.cost = 100f;
+        type.cargoPartId = "trailer";
+        type.movementPoints = 3;
+        type.isHillWalker = true;
 
         return type;
     }

@@ -58,6 +58,7 @@ public class HexMap : MonoBehaviour, IQPathWorld {
     public GameObject UnitDwarfPrefab;
     public GameObject UnitHumanPrefab;
     public GameObject UnitToucanPrefab;
+    public GameObject UnitTruckPrefab;
 
     public GameObject CityPrefab;
     public GameObject WarehousePrefab;

@@ -635,12 +635,14 @@ MonoBehaviour:
     type: 3}
   UnitToucanPrefab: {fileID: 888619844252895451, guid: f92f733471364804ab1f131050871547,
     type: 3}
+  UnitTruckPrefab: {fileID: 1488739821735203188, guid: 851218f615927b24eac149373f089fef,
+    type: 3}
   CityPrefab: {fileID: 1746324835566456, guid: dc4b6f263ddd5f449a90c6f0ec9cea66, type: 3}
   WarehousePrefab: {fileID: 561338548416274037, guid: 59d698f04249c714986f75feb2c95b49,
     type: 3}
   OreMinePrefab: {fileID: 4898029923848257310, guid: 22f679ecedc2e0646bc1388f077ac13a,
     type: 3}
-  TurnNumber: 0
+  TurnNumber: 1
   mainCamera: {fileID: 1106650761}
 --- !u!4 &205379551
 Transform:

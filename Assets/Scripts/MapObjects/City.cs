@@ -2,7 +2,7 @@
 using UnityEngine;
 
 public class City : SurfaceStructure {
-    float productionPerTurn = 50;
+    float productionPerTurn = 100;
 
     BuildingJob buildingJob;
     Unit lastBuiltUnit;
@@ -54,13 +54,13 @@ public class City : SurfaceStructure {
         // For testing, build one dwarf
         if (buildingJob == null && lastBuiltUnit == null)
         {
-            buildUnit("dwarf1");
+            buildUnit("truck1");
         }
 
         // For testing, build one toucan after the dwarf
         if (buildingJob == null && lastBuiltUnit != null)
         {
-            if (lastBuiltUnit.unitType.id == "dwarf1") {
+            if (lastBuiltUnit.unitType.id == "truck1") {
                 buildUnit("toucan1");
             }
         }
@@ -125,6 +125,9 @@ public class City : SurfaceStructure {
                 break;
             case "toucan1":
                 prefab = this.Hex.HexMap.UnitToucanPrefab;
+                break;
+            case "truck1":
+                prefab = this.Hex.HexMap.UnitTruckPrefab;
                 break;
         }
 
