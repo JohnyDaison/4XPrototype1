@@ -38,7 +38,7 @@ public class City : SurfaceStructure {
         Hex.AddCity(this);
     }
 
-    public void DoTurn()
+    public override void DoTurn()
     {
         if (buildingJob != null)
         {
@@ -136,6 +136,10 @@ public class City : SurfaceStructure {
 
     float getUnitCost(UnitType unitType) {
         return unitType.cost;
+    }
+
+    public override string GetNamePlateText() {
+        return Name;
     }
 }
 

@@ -14,4 +14,7 @@ public abstract class SurfaceStructure : MapObject
 
         Hex.AddSurfaceStructure(this);
     }
+
+    public abstract string GetNamePlateText();
+    public abstract void DoTurn();
 }

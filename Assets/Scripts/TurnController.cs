@@ -146,6 +146,7 @@ public class TurnController : MonoBehaviour {
         Debug.Log("EndTurn");
         Unit[] units = hexMap.CurrentPlayer.Units;
         City[] cities = hexMap.CurrentPlayer.Cities;
+        SurfaceStructure[] structures = hexMap.CurrentPlayer.Structures;
 
         // Heal units that are resting
 
@@ -160,6 +161,11 @@ public class TurnController : MonoBehaviour {
         foreach(City c in cities)
         {
             c.DoTurn();
+        }
+
+        foreach(SurfaceStructure structure in structures)
+        {
+            structure.DoTurn();
         }
 
 
