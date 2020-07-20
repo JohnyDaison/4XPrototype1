@@ -5,6 +5,7 @@ using UnityEngine;
 public class GameController : MonoBehaviour
 {
     public UnitTypeDB UnitTypeDB;
+    public ResourceTypeDB ResourceTypeDB;
     public static GameController instance;
 
     public HexMap hexMap;
@@ -15,6 +16,9 @@ public class GameController : MonoBehaviour
         GameController.instance = this;
         if(UnitTypeDB == null) {
             UnitTypeDB = new UnitTypeDB();
+        }
+        if(ResourceTypeDB == null) {
+            ResourceTypeDB = new ResourceTypeDB();
         }
 
         hexMap.StartGame();
