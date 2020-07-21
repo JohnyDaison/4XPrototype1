@@ -15,6 +15,7 @@ public class UnitSelectionPanel : MonoBehaviour {
     public Text HexPath;
 
     public GameObject CityBuildButton;
+    public GameObject SkipButton;
 
     SelectionController selectionController;
     	
@@ -23,20 +24,21 @@ public class UnitSelectionPanel : MonoBehaviour {
 		
         if(selectionController.SelectedUnit != null)
         {
+            Unit unit = selectionController.SelectedUnit;
 
-            Title.text    = selectionController.SelectedUnit.Name;
+            Title.text = unit.Name;
 
             Movement.text = string.Format(
                 "{0}/{1}", 
-                selectionController.SelectedUnit.MovementRemaining, 
-                selectionController.SelectedUnit.Movement
+                unit.MovementRemaining, 
+                unit.Movement
             );
 
-            Hex[] hexPath = selectionController.SelectedUnit.GetHexPath();
+            Hex[] hexPath = unit.GetHexPath();
             HexPath.text  = hexPath == null ? "0" : hexPath.Length.ToString();
 
 
-            if( selectionController.SelectedUnit.CanBuildCities && selectionController.SelectedUnit.Hex.City == null)
+            if( unit.CanBuildCities && unit.Hex.City == null)
             {
                 CityBuildButton.SetActive( true );
             }
@@ -44,6 +46,8 @@ public class UnitSelectionPanel : MonoBehaviour {
             {
                 CityBuildButton.SetActive( false );
             }
+
+            SkipButton.SetActive(!unit.AnimationIsPlaying && hexPath == null);
 
         }
 

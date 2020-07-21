@@ -8,18 +8,25 @@ public class SelectionController : MonoBehaviour {
 	void Start () {
         mouseController = GameObject.FindObjectOfType<MouseController>();
         hexMap = GameObject.FindObjectOfType<HexMap>();
+        turnController = GameObject.FindObjectOfType<TurnController>();
+        turnController.TurnEndBusyChange += OnTurnBusyChange;
 	}
 
     public GameObject UnitSelectionPanel;
     public GameObject CitySelectionPanel;
     public GameObject SelectionIndicator;
     HexMap hexMap;
+    TurnController turnController;
 
     // Unit selection
     Unit __selectedUnit = null;
     public Unit SelectedUnit {
         get { return __selectedUnit; }   
         set {
+            if(turnController.TurnEndBusy && value != null) {
+                return;
+            }
+            
             __selectedUnit = null;
             if(__selectedCity != null)
                 SelectedCity = null;
@@ -38,7 +45,10 @@ public class SelectionController : MonoBehaviour {
             {
                 // We already have a city selected, make sure we cancel the old mouse mode
                 mouseController.CancelUpdateFunc();
+            }
 
+            if(turnController.TurnEndBusy && value != null) {
+                return;
             }
 
             __selectedCity = null;
@@ -96,6 +106,13 @@ public class SelectionController : MonoBehaviour {
         SelectionIndicator.transform.position = uGO.transform.position;
     }
 
+    private void OnTurnBusyChange (bool turnEndBusy) {
+        if (turnEndBusy) {
+            SelectedUnit = null;
+            SelectedCity = null;
+        }
+    }
+    
     public void SelectNextUnit( bool skipDoneUnits )
     {
         Player player = hexMap.CurrentPlayer;

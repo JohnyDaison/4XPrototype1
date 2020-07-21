@@ -16,6 +16,7 @@ public class TurnController : MonoBehaviour {
 
     public GameObject EndTurnButton;
     public GameObject NextUnitButton;
+    public GameObject EndingTurnText;
 
     public delegate void TurnEndBusyChangeDelegate ( bool turnEndBusy );
     public event TurnEndBusyChangeDelegate TurnEndBusyChange;
@@ -37,30 +38,57 @@ public class TurnController : MonoBehaviour {
         }
     }
 
+    public delegate void UnitIsMovingChangeDelegate ( bool UnitIsMoving );
+    public event UnitIsMovingChangeDelegate UnitIsMovingChange;
+
+    private bool _unitIsMoving = false;
+    public bool UnitIsMoving {
+        get {
+            return _unitIsMoving;
+        }
+        protected set {
+            if(_unitIsMoving == value) {
+                return;
+            } else {
+                _unitIsMoving = value;
+                if(UnitIsMovingChange != null) {
+                    UnitIsMovingChange(value);
+                }
+            }
+        }
+    }
+
     public void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Space))
-        {
-            RequestTurnEnd();
-        }
+        EndingTurnText.SetActive(TurnEndBusy);
         
         // Is the current player an AI?
         // If so, instruct AI to do its move.
-        if(hexMap.CurrentPlayer.Type == Player.PlayerType.AI)
+        if (hexMap.CurrentPlayer.Type == Player.PlayerType.AI)
         {
+            EndTurnButton.SetActive(false);
+            NextUnitButton.SetActive(false);
+            
             // Call AI logic function whatever here.
             hexMap.AdvanceToNextPlayer();
             return;
         }
 
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            RequestTurnEnd();
+        }
+
         // Which button should be visible in the bottom-right?
         // Are any units waiting for commands?
-        Unit[] units = hexMap.CurrentPlayer.Units;
-        EndTurnButton.SetActive(!TurnEndBusy);
+        EndTurnButton.SetActive(EndingTurnIsAllowed());
         NextUnitButton.SetActive(false);
-        foreach(Unit u in units)
+        
+        Unit[] units = hexMap.CurrentPlayer.Units;
+        
+        foreach (Unit u in units)
         {
-            if(u.UnitWaitingForOrders())
+            if (u.UnitWaitingForOrders())
             {
                 EndTurnButton.SetActive(false);
                 NextUnitButton.SetActive(true);
@@ -72,20 +100,20 @@ public class TurnController : MonoBehaviour {
     }
 
     public void MoveUnitDuringTurn(Unit unit) {
-        if (TurnEndBusy) {
+        if (!MovingUnitIsAllowed()) {
             return;
         }
 
-        TurnEndBusy = true;
+        UnitIsMoving = true;
         StartCoroutine(DoUnitMoves(unit, (finished) => {
-            TurnEndBusy = false;
+            UnitIsMoving = false;
         }));
     }
 
     public void RequestTurnEnd() {
         Unit[] units = hexMap.CurrentPlayer.Units;
 
-        if (TurnEndBusy) {
+        if (!EndingTurnIsAllowed()) {
             return;
         }
         
@@ -109,6 +137,16 @@ public class TurnController : MonoBehaviour {
             }
             TurnEndBusy = false;
         }));
+    }
+
+    private bool EndingTurnIsAllowed()
+    {
+        return !TurnEndBusy && !UnitIsMoving;
+    }
+
+    private bool MovingUnitIsAllowed()
+    {
+        return !TurnEndBusy && !UnitIsMoving;
     }
 
     private IEnumerator PrepareForTurnEnd(Action<bool> callback) {
