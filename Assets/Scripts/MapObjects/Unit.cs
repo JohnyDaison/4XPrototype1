@@ -139,11 +139,10 @@ public class Unit : MapObject, IQPathUnit {
         Debug.Log("DoMove");
         // Do queued move
 
-        if(MovementRemaining <= 0)
+        if (MovementRemaining <= 0)
             return false;
 
-        if(hexPath == null || hexPath.Count == 0)
-        {
+        if (!CheckHexPathValid()) {
             return false;
         }
 
@@ -151,9 +150,9 @@ public class Unit : MapObject, IQPathUnit {
         Hex hexWeAreLeaving = hexPath[0];
         Hex newHex = hexPath[1];
 
-        int costToEnter = MovementCostToEnterHex( newHex );
+        int costToEnter = MovementCostToEnterHex(newHex);
 
-        if( costToEnter > MovementRemaining && MovementRemaining < Movement && MOVEMENT_RULES_LIKE_CIV6 )
+        if (costToEnter > MovementRemaining && MovementRemaining < Movement && MOVEMENT_RULES_LIKE_CIV6)
         {
             // We can't enter the hex this turn
             return false;
@@ -161,19 +160,29 @@ public class Unit : MapObject, IQPathUnit {
 
         hexPath.RemoveAt(0);
 
-        if( hexPath.Count == 1 )
+        // Move to the new Hex
+        SetHex(newHex);
+        MovementRemaining = Mathf.Max(MovementRemaining - costToEnter, 0);
+
+        return CheckHexPathValid();
+    }
+
+    private bool CheckHexPathValid()
+    {
+        if (hexPath == null) {
+            return false;
+        }
+        
+        if (hexPath.Count <= 1)
         {
             // The only hex left in the list, is the one we are moving to now,
             // therefore we have no more path to follow, so let's just clear
             // the queue completely to avoid confusion.
             hexPath = null;
+            return false;
         }
 
-        // Move to the new Hex
-        SetHex( newHex );
-        MovementRemaining = Mathf.Max(MovementRemaining-costToEnter, 0);
-
-        return hexPath != null;
+        return true;
     }
 
     public int MovementCostToEnterHex( Hex hex )
