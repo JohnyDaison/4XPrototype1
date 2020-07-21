@@ -139,10 +139,11 @@ public class Unit : MapObject, IQPathUnit {
         Debug.Log("DoMove");
         // Do queued move
 
-        if (MovementRemaining <= 0)
-            return false;
-
         if (!CheckHexPathValid()) {
+            return false;
+        }
+
+        if (MovementRemaining <= 0) {
             return false;
         }
 
