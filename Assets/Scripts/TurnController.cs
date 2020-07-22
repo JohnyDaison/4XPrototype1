@@ -70,7 +70,7 @@ public class TurnController : MonoBehaviour {
             NextUnitButton.SetActive(false);
             
             // Call AI logic function whatever here.
-            hexMap.AdvanceToNextPlayer();
+            GoToNextPlayer();
             return;
         }
 
@@ -179,6 +179,14 @@ public class TurnController : MonoBehaviour {
         callback(true);
     }
 
+    private void StartTurn() {
+        Unit[] units = hexMap.CurrentPlayer.Units;
+        foreach (Unit u in units)
+        {
+            u.HandleStructureInteraction();
+        }
+    }
+
     private void EndTurn()
     {
         Debug.Log("EndTurn");
@@ -189,28 +197,31 @@ public class TurnController : MonoBehaviour {
         // Heal units that are resting
 
         // Reset unit movement
-        foreach(Unit u in units)
+        foreach (Unit u in units)
         {
             u.RefreshMovement();
         }
 
         // If we get to this point, no units are waiting for orders, so process cities
 
-        foreach(City c in cities)
+        foreach (City c in cities)
         {
             c.DoTurn();
         }
 
-        foreach(SurfaceStructure structure in structures)
+        foreach (SurfaceStructure structure in structures)
         {
             structure.DoTurn();
         }
 
+        GoToNextPlayer();
+    }
 
-        // Go to next player
+    private void GoToNextPlayer()
+    {
         selectionController.SelectedUnit = null;
         selectionController.SelectedCity = null;
         hexMap.AdvanceToNextPlayer();
-
+        StartTurn();
     }
 }

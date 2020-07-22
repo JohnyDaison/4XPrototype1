@@ -305,7 +305,7 @@ public class Unit : MapObject, IQPathUnit {
         HandleStructureInteraction();
     }
 
-    private void HandleStructureInteraction() {
+    public void HandleStructureInteraction() {
         if (Hex.SurfaceStructure == null) {
             return;
         }
