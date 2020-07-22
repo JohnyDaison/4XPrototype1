@@ -5,15 +5,17 @@ public class Warehouse : SurfaceStructure
         Name = "Warehouse";
         storageContainer.TotalStackCount = 6;
         storageContainer.MaxStackVolume = 2;
+        isGeneralStorage = true;
     }
-
-    private StorageContainer storageContainer = new StorageContainer();
 
     public override void DoTurn() {
         
     }
     
     public override string GetNamePlateText() {
-        return Name;
+        string inStorage = storageContainer.GetOccupiedVolume().ToString("0.00");
+        string maxStorage = storageContainer.GetTotalVolume().ToString("0.00");
+
+        return $"{inStorage}/{maxStorage}";
     }
 }

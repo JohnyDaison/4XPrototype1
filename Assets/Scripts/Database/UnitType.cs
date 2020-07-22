@@ -16,6 +16,9 @@ public class UnitType
     public string modelId = null; 
     public string cargoPartId = null;
 
+    public int storageStackCount = 0;
+    public float storageStackVolume = 0;
+
     public int movementPoints = 0;
     public bool canBuildCities = false;
     public bool isHillWalker = false;

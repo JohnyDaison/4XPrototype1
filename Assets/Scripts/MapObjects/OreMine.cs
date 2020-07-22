@@ -8,12 +8,13 @@ public class OreMine : SurfaceStructure
         storageContainer.TotalStackCount = 1;
         storageContainer.MaxStackVolume = 1;
         turnController = GameObject.FindObjectOfType<TurnController>();
+        ResourceType ironOre = GameController.instance.ResourceTypeDB.GetResourceTypeById("ironOre1");
+        outputResources.Add(ironOre);
     }
     
     public float extractionSpeed = 0.1f;
 
     private TurnController turnController;
-    private StorageContainer storageContainer = new StorageContainer();
 
     public override void DoTurn() {
         DoExtractionTick();
@@ -39,7 +40,8 @@ public class OreMine : SurfaceStructure
     public override string GetNamePlateText() {
         float inGround = Hex.floatParams[Hex.HEX_FLOAT_PARAMS.IronOre];
         float inStorage = storageContainer.GetOccupiedVolume();
+        float maxStorage = storageContainer.GetTotalVolume();
 
-        return $"{inGround.ToString("0.00")} -> {inStorage.ToString("0.00")}";
+        return $"{inGround.ToString("0.00")} -> {inStorage.ToString("0.00")}/{maxStorage.ToString("0.00")}";
     }
 }

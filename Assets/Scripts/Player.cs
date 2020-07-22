@@ -6,9 +6,10 @@ using System.Linq;
 
 public class Player
 {
-    public Player( string name )
+    public Player( int number, string name )
     {
-        PlayerName = name; 
+        PlayerNumber = number;
+        PlayerName = name;
 
         units = new HashSet<Unit>();
         cities = new HashSet<City>();
@@ -16,6 +17,7 @@ public class Player
     }
 
     public string PlayerName;
+    public int PlayerNumber;
 
     public enum PlayerType { LOCAL, AI, REMOTE };
     public PlayerType Type = PlayerType.LOCAL;

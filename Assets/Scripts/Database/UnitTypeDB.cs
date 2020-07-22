@@ -114,6 +114,8 @@ public class UnitTypeDB
         type.id = "truck1";
         type.name = "Truck";
         type.cost = 100f;
+        type.storageStackCount = 1;
+        type.storageStackVolume = 0.5f;
         type.cargoPartId = "trailer";
         type.movementPoints = 3;
         type.isHillWalker = true;

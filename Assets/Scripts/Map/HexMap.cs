@@ -29,7 +29,7 @@ public class HexMap : MonoBehaviour, IQPathWorld {
         Players = new Player[numPlayers];
         for (int i = 0; i < numPlayers; i++)
         {
-            Players[i] = new Player( "Player " + (i+1).ToString() );
+            Players[i] = new Player(i+1, "Player " + (i+1).ToString() );
             Players[i].Type = Player.PlayerType.AI;
         }
         //CurrentPlayer = Players[0];

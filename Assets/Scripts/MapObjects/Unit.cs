@@ -12,6 +12,7 @@ public class Unit : MapObject, IQPathUnit {
         setUnitName(unitType);
         setUnitMovement(unitType);
         setUnitAbilities(unitType);
+        setUnitStorage(unitType);
     }
 
     public UnitType unitType;
@@ -27,6 +28,8 @@ public class Unit : MapObject, IQPathUnit {
     public bool isFlier = false;
 
     public bool SkipThisUnit = false;
+
+    public StorageContainer storageContainer = new StorageContainer();
 
 
     /// <summary>
@@ -52,6 +55,11 @@ public class Unit : MapObject, IQPathUnit {
         isHillWalker = type.isHillWalker;
         isForestWalker = type.isForestWalker;
         isFlier = type.isFlier;
+    }
+
+    private void setUnitStorage(UnitType type) {
+        storageContainer.TotalStackCount = type.storageStackCount;
+        storageContainer.MaxStackVolume = type.storageStackVolume;
     }
 
     public void DUMMY_PATHING_FUNCTION()
@@ -293,6 +301,26 @@ public class Unit : MapObject, IQPathUnit {
         base.SetHex( newHex );
 
         Hex.AddUnit(this);
+
+        HandleStructureInteraction();
+    }
+
+    private void HandleStructureInteraction() {
+        if (Hex.SurfaceStructure == null) {
+            return;
+        }
+
+        SurfaceStructure structure = Hex.SurfaceStructure;
+
+        if (structure.isGeneralStorage) {
+            storageContainer.TransferAll(structure.storageContainer);
+        }
+
+        if (structure.outputResources.Count > 0) {
+            foreach (ResourceType resource in structure.outputResources) {
+                structure.storageContainer.TransferResource(resource, storageContainer);
+            }
+        }
     }
 
     override public void Destroy(  )
@@ -308,5 +336,14 @@ public class Unit : MapObject, IQPathUnit {
     public float CostToEnterHex( IQPathTile sourceTile, IQPathTile destinationTile )
     {
         return 1;
+    }
+
+    public string GetNamePlateText() {
+         string text = $"{player.PlayerNumber} | {Name}";
+         if (storageContainer.GetTotalVolume() > 0) {
+            string cargo = storageContainer.GetOccupiedVolume().ToString("0.00");
+            text += $" ({cargo})";
+         }
+         return text;
     }
 }

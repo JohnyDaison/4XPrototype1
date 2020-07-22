@@ -1,6 +1,12 @@
+using System.Collections.Generic;
+
 public abstract class SurfaceStructure : MapObject
 {
     public Player player;
+    public StorageContainer storageContainer = new StorageContainer();
+    public List<ResourceType> inputResources = new List<ResourceType>();
+    public List<ResourceType> outputResources = new List<ResourceType>();
+    public bool isGeneralStorage = false;    
 
     override public void SetHex(Hex newHex)
     {

@@ -19,6 +19,7 @@ public class UnitNameplate : MonoBehaviour, IPointerClickHandler {
         if(MyUnit != null)
         {
             textComponent.text = MyUnit.player.PlayerName;
+            textComponent.text = MyUnit.GetNamePlateText();
         }
     }
 }

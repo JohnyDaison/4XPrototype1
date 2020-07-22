@@ -48,7 +48,6 @@ public class UnitView : MonoBehaviour {
         else {
             // TODO: WE need a better signalling system and/or animation queueing
             Unit.AnimationIsPlaying = true;
-            setCargoVisibility(true);
         }
     }
 
@@ -92,9 +91,10 @@ public class UnitView : MonoBehaviour {
         // TODO: Figure out the best way to determine the end of our animation
         if( Vector3.Distance( this.transform.position, newPosition ) < 0.1f )
         {
-            Unit.AnimationIsPlaying = false;
-            setCargoVisibility(false);
+            Unit.AnimationIsPlaying = false;         
         }
+
+        setCargoVisibility(Unit.storageContainer.GetOccupiedVolume() > 0);
     }
 
 }
