@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 public class StorageContainer
 {
@@ -14,8 +15,7 @@ public class StorageContainer
     public float GetOccupiedVolume() {
         float total = 0;
         
-        foreach (KeyValuePair<int,StorageItem> entry in stacks)
-        {
+        foreach (KeyValuePair<int,StorageItem> entry in stacks) {
             StorageItem item = entry.Value;
             total += item.StackVolume;
         }
@@ -32,24 +32,23 @@ public class StorageContainer
     }
 
     public bool AddItem(StorageItem newItem) {
-        bool result = CanFullItemBeAdded(newItem);
+        float amount = newItem.StackVolume;
 
-        if(result) {
-            foreach (KeyValuePair<int,StorageItem> entry in stacks)
-            {
-                StorageItem stackItem = entry.Value;
-                stackItem.MergeItem(newItem, MaxStackVolume);
-            }
+        foreach (KeyValuePair<int,StorageItem> entry in stacks) {
+            StorageItem stackItem = entry.Value;
+            stackItem.MergeItem(newItem, MaxStackVolume);
+        }
 
-            int stackIndex = 0;
-            while(newItem.StackVolume > 0) {
-                if(!stacks.ContainsKey(stackIndex)) {
-                    stacks.Add(stackIndex, newItem.SplitItem(MaxStackVolume));
-                }
-
-                stackIndex++;
+        for (int stackIndex = 0; stackIndex < TotalStackCount && newItem.StackVolume > 0; stackIndex++) {
+            if(!stacks.ContainsKey(stackIndex)) {
+                stacks.Add(stackIndex, newItem.SplitItem(MaxStackVolume));
             }
         }
+
+        amount -= newItem.StackVolume;
+        bool result = amount > 0;
+
+        Debug.Log($"AddItem moved {amount}");
 
         return result;
     }
@@ -62,8 +61,7 @@ public class StorageContainer
         }
 
         int stackIndex = -1;
-        foreach (KeyValuePair<int,StorageItem> entry in stacks)
-        {
+        foreach (KeyValuePair<int,StorageItem> entry in stacks) {
             if(entry.Value == item) {
                 stackIndex = entry.Key;
             }
@@ -91,12 +89,75 @@ public class StorageContainer
         return result;
     }
 
-    public void DoStackCleanup() {
-        foreach (KeyValuePair<int,StorageItem> entry in stacks)
-        {
+    /// <summary>
+    /// Transfer as much as you can to <paramref name="targetContainer"/>
+    /// </summary>
+    /// <param name="targetContainer">StorageContainer</param>
+    /// <returns>True if anything was transferred, false otherwise</returns>
+    public bool TransferAll(StorageContainer targetContainer) {
+        bool result = false;
+        float amount = GetOccupiedVolume();
+
+        foreach (KeyValuePair<int,StorageItem> entry in stacks) {
             StorageItem stackItem = entry.Value;
-            if(stackItem.StackVolume <= 0) {
-                stacks.Remove(entry.Key);
+
+            if(targetContainer.AddItem(stackItem)) {
+                result = true;
+            }
+        }
+
+        amount -= GetOccupiedVolume();
+
+        Debug.Log($"TransferAll - moved {amount}");
+
+        DoStackCleanup();
+
+        return result;
+    }
+
+    /// <summary>
+    /// Try to transfer all of specified <paramref name="resource"/> to <paramref name="targetContainer"/>
+    /// </summary>
+    /// <param name="resource">ResourceType</param>
+    /// <param name="targetContainer">StorageContainer</param>
+    /// <returns>True if at least some resource was transferred, false otherwise</returns>
+    public bool TransferResource(ResourceType resource, StorageContainer targetContainer) {
+        bool result = false;
+        float amount = GetOccupiedVolume();
+
+        foreach (KeyValuePair<int,StorageItem> entry in stacks) {
+            StorageItem stackItem = entry.Value;
+            if (stackItem is ResourceStorageItem) {
+                ResourceStorageItem resourceItem = (ResourceStorageItem)stackItem;
+
+                if (resourceItem.ResourceType == resource) {
+                    if (targetContainer.AddItem(resourceItem)) {
+                        result = true;
+                    }
+                }
+            }
+        }
+
+        amount -= GetOccupiedVolume();
+
+        Debug.Log($"TransferResource {resource.Name} - moved {amount}");
+
+        DoStackCleanup();
+
+        return result;
+
+    }
+
+    public void DoStackCleanup() {
+        for (int stackIndex = TotalStackCount-1; stackIndex >= 0; stackIndex--) {
+            if (!stacks.ContainsKey(stackIndex)) {
+                continue;
+            }
+
+            StorageItem stackItem = stacks[stackIndex];
+
+            if (stackItem.StackVolume <= 0) {
+                stacks.Remove(stackIndex);
             }
         }
     }
