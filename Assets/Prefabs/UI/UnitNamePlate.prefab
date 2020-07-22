@@ -183,7 +183,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MyTarget: {fileID: 0}
   WorldPositionOffset: {x: 0, y: 1, z: 0}
-  ScreenPositionOffset: {x: 0, y: 30, z: 0}
+  ScreenPositionOffset: {x: 0, y: 60, z: 0}
   TheCamera: {fileID: 0}
 --- !u!1 &7035869000753621635
 GameObject:
