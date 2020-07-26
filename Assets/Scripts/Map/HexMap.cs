@@ -387,9 +387,12 @@ public class HexMap : MonoBehaviour, IQPathWorld {
 
         Hex myHex = GetHexAt(q, r);
         GameObject myHexGO = hexToGameObjectMap[myHex];
+        HexComponent hexComp = myHexGO.GetComponentInChildren<HexComponent>();
         unit.SetHex(myHex);
 
-        GameObject unitGO = Instantiate(unit.prefab, myHexGO.transform.position, Quaternion.identity, myHexGO.transform);
+        Vector3 position = myHexGO.transform.position;
+        position.y += hexComp.VerticalOffset;
+        GameObject unitGO = Instantiate(unit.prefab, position, Quaternion.identity, myHexGO.transform);
         UnitView unitView = unitGO.GetComponent<UnitView>();
         unit.OnObjectMoved += unitView.OnUnitMoved;
         unitView.Unit = unit;

@@ -9,6 +9,8 @@ public class GameController : MonoBehaviour
     public static GameController instance;
 
     public HexMap hexMap;
+    public int MinutesPerTurn;
+    public int HexDiameter; // in Km
     
     // Start is called before the first frame update
     void Start()

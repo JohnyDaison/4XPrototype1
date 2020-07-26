@@ -21,6 +21,8 @@ public class Unit : MapObject, IQPathUnit {
 
     public int Movement = 0;
     public int MovementRemaining = 0;
+    public float BaseMoveSpeed = 0;
+    public int MinutesRemaining = 0;
 
     public bool CanBuildCities = false;
     public bool isHillWalker = false;
@@ -48,6 +50,8 @@ public class Unit : MapObject, IQPathUnit {
     private void setUnitMovement(UnitType type) {
         Movement = type.movementPoints;
         MovementRemaining = Movement;
+        BaseMoveSpeed = type.baseMovementSpeed;
+        MinutesRemaining = GameController.instance.MinutesPerTurn;
     }
 
     private void setUnitAbilities(UnitType type) {
@@ -136,6 +140,7 @@ public class Unit : MapObject, IQPathUnit {
     {
         SkipThisUnit = false;
         MovementRemaining = Movement;
+        MinutesRemaining = GameController.instance.MinutesPerTurn;
     }
 
     /// <summary>
@@ -172,6 +177,7 @@ public class Unit : MapObject, IQPathUnit {
         // Move to the new Hex
         SetHex(newHex);
         MovementRemaining = Mathf.Max(MovementRemaining - costToEnter, 0);
+        MinutesRemaining = Mathf.Max(MinutesRemaining - costToEnter * MyUtils.MinutesPerHex(BaseMoveSpeed), 0);
 
         return CheckHexPathValid();
     }

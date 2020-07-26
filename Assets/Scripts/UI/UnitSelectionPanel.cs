@@ -12,7 +12,9 @@ public class UnitSelectionPanel : MonoBehaviour {
 
     public Text Title;
     public Text Movement;
-    public Text HexPath;
+    public Text Time;
+    public Text HexPathDistance;
+    public Text HexPathDuration;
 
     public Button CityBuildButton;
     public Button WarehouseBuildButton;
@@ -30,14 +32,30 @@ public class UnitSelectionPanel : MonoBehaviour {
 
             Title.text = unit.Name;
 
-            Movement.text = string.Format(
-                "{0}/{1}", 
-                unit.MovementRemaining, 
-                unit.Movement
-            );
+            Movement.text = $"Movement: {unit.MovementRemaining}/{unit.Movement} Speed: {unit.BaseMoveSpeed}km/h";
+            
+            string remainingTime = MyUtils.MinutesToTimeDisplayString(unit.MinutesRemaining);
+            string timePerTurn = MyUtils.MinutesToTimeDisplayString(GameController.instance.MinutesPerTurn);
+            Time.text = $"Time: {remainingTime} / {timePerTurn}";
 
             Hex[] hexPath = unit.GetHexPath();
-            HexPath.text  = hexPath == null ? "0" : hexPath.Length.ToString();
+            int pathLength = hexPath == null || hexPath.Length == 0 ? 0 : hexPath.Length - 1;
+            int pathDistance = pathLength * GameController.instance.HexDiameter;
+            int minutesPerHex = MyUtils.MinutesPerHex(unit.BaseMoveSpeed);
+            int pathMinutesExact = 0;
+            if (hexPath != null) {
+                for(int index = 1; index < hexPath.Length; index++)
+                {
+                    Hex hex = hexPath[index];
+                    pathMinutesExact += (int) Mathf.Ceil(minutesPerHex * unit.MovementCostToEnterHex(hex));
+                } 
+            }
+            
+            string timeString = MyUtils.MinutesToTimeDisplayString(pathMinutesExact);
+            string turnsString = MyUtils.MinutesToTurnsString(pathMinutesExact);
+
+            HexPathDistance.text = $"Path distance: {pathLength} tiles / {pathDistance}km";
+            HexPathDuration.text = $"Path duration: {turnsString} / {timeString}";
 
             bool tileIsFree = unit.Hex.SurfaceStructure == null;
             bool canBuildStructure = unit.CanBuildCities && tileIsFree;

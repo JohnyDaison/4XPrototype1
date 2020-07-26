@@ -20,6 +20,7 @@ public class UnitType
     public float storageStackVolume = 0;
 
     public int movementPoints = 0;
+    public float baseMovementSpeed = 0;
     public bool canBuildCities = false;
     public bool isHillWalker = false;
     public bool isForestWalker = false;

@@ -54,6 +54,7 @@ public class UnitTypeDB
         type.name = "Human";
         type.cost = 100f;
         type.movementPoints = 2;
+        type.baseMovementSpeed = 10;
         type.canBuildCities = true;
 
         return type;
@@ -66,6 +67,7 @@ public class UnitTypeDB
         type.name = "Dwarf";
         type.cost = 100f;
         type.movementPoints = 2;
+        type.baseMovementSpeed = 10;
         type.canBuildCities = true;
         type.isHillWalker = true;
 
@@ -79,6 +81,7 @@ public class UnitTypeDB
         type.name = "Elf";
         type.cost = 100f;
         type.movementPoints = 2;
+        type.baseMovementSpeed = 10;
         type.isForestWalker = true;
 
         return type;
@@ -91,6 +94,7 @@ public class UnitTypeDB
         type.name = "Toucan";
         type.cost = 100f;
         type.movementPoints = 5;
+        type.baseMovementSpeed = 25;
         type.isFlier = true;
 
         return type;
@@ -103,6 +107,7 @@ public class UnitTypeDB
         type.name = "Merman";
         type.cost = 100f;
         type.movementPoints = 2;
+        type.baseMovementSpeed = 10;
         type.isAquatic = true;
 
         return type;
@@ -118,6 +123,7 @@ public class UnitTypeDB
         type.storageStackVolume = 0.5f;
         type.cargoPartId = "trailer";
         type.movementPoints = 3;
+        type.baseMovementSpeed = 15;
         type.isHillWalker = true;
 
         return type;
