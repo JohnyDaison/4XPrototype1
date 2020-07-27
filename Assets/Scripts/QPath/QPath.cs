@@ -50,5 +50,5 @@ namespace QPath
         }
     }
 
-    public delegate float CostEstimateDelegate(IQPathTile a, IQPathTile b);
+    public delegate float CostEstimateDelegate(IQPathTile a, IQPathTile b, IQPathUnit unit);
 }

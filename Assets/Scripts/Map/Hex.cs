@@ -149,9 +149,11 @@ public class Hex : IQPathTile {
         return position;
     }
 
-    public static float CostEstimate(IQPathTile aa, IQPathTile bb)
+    public static float CostEstimate(IQPathTile aa, IQPathTile bb, IQPathUnit unit)
     {
-        return Distance((Hex)aa, (Hex) bb);
+        float normalHexesPerTurn = ((Unit)unit).NormalHexesPerTurn;
+        float distance = Distance((Hex)aa, (Hex) bb);
+        return distance / normalHexesPerTurn;
     }
 
     public static float Distance(Hex a, Hex b)

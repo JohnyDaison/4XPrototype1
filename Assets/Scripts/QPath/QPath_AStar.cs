@@ -49,7 +49,7 @@ namespace QPath
             g_score[startTile] = 0;
 
             Dictionary<T, float> f_score = new Dictionary<T, float>();
-            f_score[startTile] = costEstimateFunc(startTile, endTile);
+            f_score[startTile] = costEstimateFunc(startTile, endTile, unit);
 
             while (openSet.Count > 0)
             {
@@ -83,7 +83,7 @@ namespace QPath
                     }
                     //Debug.Log(total_pathfinding_cost_to_neighbour);
 
-                    float tentative_g_score = total_pathfinding_cost_to_neighbour + 1;
+                    float tentative_g_score = total_pathfinding_cost_to_neighbour;
 
                     // Is the neighbour already in the open set?
                     //   If so, and if this new score is worse than the old score,
@@ -96,7 +96,7 @@ namespace QPath
                     // This is either a new tile or we just found a cheaper route to it
                     came_From[neighbour] = current;
                     g_score[neighbour] = tentative_g_score;
-                    f_score[neighbour] = g_score[neighbour] + costEstimateFunc(neighbour, endTile);
+                    f_score[neighbour] = g_score[neighbour] + costEstimateFunc(neighbour, endTile, unit);
 
                     openSet.EnqueueOrUpdate(neighbour, f_score[neighbour]);
                 } // foreach neighbour

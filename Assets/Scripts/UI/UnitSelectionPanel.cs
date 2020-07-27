@@ -32,7 +32,7 @@ public class UnitSelectionPanel : MonoBehaviour {
 
             Title.text = unit.Name;
 
-            Movement.text = $"Movement: {unit.MovementRemaining}/{unit.Movement} Speed: {unit.BaseMoveSpeed}km/h";
+            Movement.text = $"Speed: {unit.BaseMoveSpeed}km/h";
             
             string remainingTime = MyUtils.MinutesToTimeDisplayString(unit.MinutesRemaining);
             string timePerTurn = MyUtils.MinutesToTimeDisplayString(GameController.instance.MinutesPerTurn);
@@ -52,10 +52,10 @@ public class UnitSelectionPanel : MonoBehaviour {
             }
             
             string timeString = MyUtils.MinutesToTimeDisplayString(pathMinutesExact);
-            string turnsString = MyUtils.MinutesToTurnsString(pathMinutesExact);
+            string turnsString = MyUtils.MinutesToTurnsString(pathMinutesExact, unit.MinutesRemaining);
 
-            HexPathDistance.text = $"Path distance: {pathLength} tiles / {pathDistance}km";
-            HexPathDuration.text = $"Path duration: {turnsString} / {timeString}";
+            HexPathDistance.text = $"Path distance: {pathDistance}km ({pathLength} tiles)";
+            HexPathDuration.text = $"Path duration: {timeString} ({turnsString})";
 
             bool tileIsFree = unit.Hex.SurfaceStructure == null;
             bool canBuildStructure = unit.CanBuildCities && tileIsFree;

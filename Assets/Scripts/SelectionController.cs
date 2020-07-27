@@ -9,6 +9,7 @@ public class SelectionController : MonoBehaviour {
         mouseController = GameObject.FindObjectOfType<MouseController>();
         hexMap = GameObject.FindObjectOfType<HexMap>();
         turnController = GameObject.FindObjectOfType<TurnController>();
+        turnController.TurnStartBusyChange += OnTurnBusyChange;
         turnController.TurnEndBusyChange += OnTurnBusyChange;
 	}
 
@@ -23,7 +24,7 @@ public class SelectionController : MonoBehaviour {
     public Unit SelectedUnit {
         get { return __selectedUnit; }   
         set {
-            if(turnController.TurnEndBusy && value != null) {
+            if(turnController.IsBusy() && value != null) {
                 return;
             }
             
@@ -47,7 +48,7 @@ public class SelectionController : MonoBehaviour {
                 mouseController.CancelUpdateFunc();
             }
 
-            if(turnController.TurnEndBusy && value != null) {
+            if(turnController.IsBusy() && value != null) {
                 return;
             }
 
@@ -106,8 +107,8 @@ public class SelectionController : MonoBehaviour {
         SelectionIndicator.transform.position = uGO.transform.position;
     }
 
-    private void OnTurnBusyChange (bool turnEndBusy) {
-        if (turnEndBusy) {
+    private void OnTurnBusyChange (bool turnBusy) {
+        if (turnController.IsBusy()) {
             SelectedUnit = null;
             SelectedCity = null;
         }

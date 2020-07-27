@@ -14,10 +14,18 @@ public static class MyUtils
         return result;
     }
 
-    public static string MinutesToTurnsString(int totalMinutes) {
-        int turns = (int) Mathf.Ceil((float)totalMinutes / GameController.instance.MinutesPerTurn);
+    public static int MinutesToTurns(int totalMinutes, int minutesRemaining) {
+        int turns = (int) Mathf.Ceil((float)Mathf.Max(0, totalMinutes-minutesRemaining) / GameController.instance.MinutesPerTurn);
 
-        return $"{turns} turns";
+        return turns;
+    }
+
+    public static string MinutesToTurnsString(int totalMinutes, int minutesRemaining) {
+        int turns = MinutesToTurns(totalMinutes, minutesRemaining);
+
+        return turns == 1 ? 
+            $"{turns} turn" : 
+            $"{turns} turns";
     }
 
     public static int MinutesPerHex(float baseSpeed) {
@@ -25,5 +33,10 @@ public static class MyUtils
         float distanceKm = GameController.instance.HexDiameter;
         int minutes = (int) Mathf.Ceil(distanceKm / speedKpM);
         return minutes;
+    }
+
+    public static float HexesPerTurn(float baseSpeed) {
+        float hexes = GameController.instance.MinutesPerTurn / MinutesPerHex(baseSpeed);
+        return hexes;
     }
 }

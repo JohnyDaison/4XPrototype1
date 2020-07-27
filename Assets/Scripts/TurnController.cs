@@ -16,7 +16,28 @@ public class TurnController : MonoBehaviour {
 
     public GameObject EndTurnButton;
     public GameObject NextUnitButton;
+    public GameObject StartingTurnText;
     public GameObject EndingTurnText;
+
+    public delegate void TurnStartBusyChangeDelegate ( bool turnStartBusy );
+    public event TurnStartBusyChangeDelegate TurnStartBusyChange;
+
+    private bool _turnStartBusy = false;
+    public bool TurnStartBusy {
+        get {
+            return _turnStartBusy;
+        }
+        protected set {
+            if(_turnStartBusy == value) {
+                return;
+            } else {
+                _turnStartBusy = value;
+                if(TurnStartBusyChange != null) {
+                    TurnStartBusyChange(value);
+                }
+            }
+        }
+    }
 
     public delegate void TurnEndBusyChangeDelegate ( bool turnEndBusy );
     public event TurnEndBusyChangeDelegate TurnEndBusyChange;
@@ -58,32 +79,24 @@ public class TurnController : MonoBehaviour {
         }
     }
 
+    public bool IsBusy() {
+        return TurnStartBusy || TurnEndBusy;
+    }
+
     public void Update()
     {
+        StartingTurnText.SetActive(TurnStartBusy);
         EndingTurnText.SetActive(TurnEndBusy);
-        
-        // Is the current player an AI?
-        // If so, instruct AI to do its move.
-        if (hexMap.CurrentPlayer.Type == Player.PlayerType.AI)
-        {
-            EndTurnButton.SetActive(false);
-            NextUnitButton.SetActive(false);
-            
-            // Call AI logic function whatever here.
-            GoToNextPlayer();
-            return;
-        }
-
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            RequestTurnEnd();
-        }
 
         // Which button should be visible in the bottom-right?
-        // Are any units waiting for commands?
         EndTurnButton.SetActive(EndingTurnIsAllowed());
         NextUnitButton.SetActive(false);
         
+        if(IsBusy()) {
+            return;
+        }
+
+        // Are any units waiting for commands?
         Unit[] units = hexMap.CurrentPlayer.Units;
         
         foreach (Unit u in units)
@@ -97,6 +110,23 @@ public class TurnController : MonoBehaviour {
         }
 
         // Is a city waiting with an empty production queue?
+                
+        // Is the current player an AI?
+        // If so, instruct AI to do its move.
+        if (hexMap.CurrentPlayer.Type == Player.PlayerType.AI)
+        {
+            EndTurnButton.SetActive(false);
+            NextUnitButton.SetActive(false);
+            
+            // Call AI logic function whatever here.
+            RequestTurnEnd();
+            return;
+        }
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            RequestTurnEnd();
+        }
     }
 
     public void MoveUnitDuringTurn(Unit unit) {
@@ -134,6 +164,9 @@ public class TurnController : MonoBehaviour {
         StartCoroutine(PrepareForTurnEnd((finished) => {
             if(finished) {
                 EndTurn();
+                TurnEndBusy = false;
+                GoToNextPlayer();
+                RequestTurnStart();
             }
             TurnEndBusy = false;
         }));
@@ -141,12 +174,22 @@ public class TurnController : MonoBehaviour {
 
     private bool EndingTurnIsAllowed()
     {
-        return !TurnEndBusy && !UnitIsMoving;
+        return !IsBusy() && !UnitIsMoving;
     }
 
     private bool MovingUnitIsAllowed()
     {
-        return !TurnEndBusy && !UnitIsMoving;
+        return !IsBusy() && !UnitIsMoving;
+    }
+
+    private IEnumerator PrepareForTurnStart(Action<bool> callback) {
+        Unit[] units = hexMap.CurrentPlayer.Units;
+
+        foreach(Unit u in units)
+        {
+            yield return DoUnfinishedUnitMoves(u, (finished) => {});
+        }
+        callback(true);
     }
 
     private IEnumerator PrepareForTurnEnd(Action<bool> callback) {
@@ -177,6 +220,35 @@ public class TurnController : MonoBehaviour {
         }
 
         callback(true);
+    }
+
+    private IEnumerator DoUnfinishedUnitMoves(Unit u, Action<bool> callback)
+    {
+        if( u.IsMidActionAtTurnStart() && u.DoMove() )
+        {
+            Debug.Log("DoMove returned true -- turn start.");
+            // TODO: Check to see if an animation is playing, if so
+            // wait for it to finish. 
+            while(u.AnimationIsPlaying) {
+                yield return null; // Wait one frame
+            }
+
+        }
+
+        callback(true);
+    }
+
+    private void RequestTurnStart() {
+        Unit[] units = hexMap.CurrentPlayer.Units;
+
+        TurnStartBusy = true;
+        StartCoroutine(PrepareForTurnStart((finished) => {
+            if(finished) {
+                StartTurn();
+                TurnStartBusy = false;
+            }
+            TurnStartBusy = false;
+        }));
     }
 
     private void StartTurn() {
@@ -213,8 +285,6 @@ public class TurnController : MonoBehaviour {
         {
             structure.DoTurn();
         }
-
-        GoToNextPlayer();
     }
 
     private void GoToNextPlayer()
@@ -222,6 +292,5 @@ public class TurnController : MonoBehaviour {
         selectionController.SelectedUnit = null;
         selectionController.SelectedCity = null;
         hexMap.AdvanceToNextPlayer();
-        StartTurn();
     }
 }

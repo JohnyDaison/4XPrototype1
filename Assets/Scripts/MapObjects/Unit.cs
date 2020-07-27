@@ -19,9 +19,8 @@ public class Unit : MapObject, IQPathUnit {
     public GameObject prefab;
     public Player player;
 
-    public int Movement = 0;
-    public int MovementRemaining = 0;
     public float BaseMoveSpeed = 0;
+    public float NormalHexesPerTurn = 0;
     public int MinutesRemaining = 0;
 
     public bool CanBuildCities = false;
@@ -48,9 +47,8 @@ public class Unit : MapObject, IQPathUnit {
     }
 
     private void setUnitMovement(UnitType type) {
-        Movement = type.movementPoints;
-        MovementRemaining = Movement;
         BaseMoveSpeed = type.baseMovementSpeed;
+        NormalHexesPerTurn = MyUtils.HexesPerTurn(BaseMoveSpeed);
         MinutesRemaining = GameController.instance.MinutesPerTurn;
     }
 
@@ -125,7 +123,7 @@ public class Unit : MapObject, IQPathUnit {
 
         // Returns true if we have movement left but nothing queued
         if( 
-            MovementRemaining > 0 && 
+            MinutesRemaining > 0 && 
             (hexPath==null || hexPath.Count==0) 
             // TODO: Maybe we've been told to Fortify/Alert/SkipTurn
         )
@@ -136,11 +134,18 @@ public class Unit : MapObject, IQPathUnit {
         return false;
     }
 
+    public bool IsMidActionAtTurnStart() {
+        return MinutesRemaining > GameController.instance.MinutesPerTurn;
+    }
+
     public void RefreshMovement()
     {
         SkipThisUnit = false;
-        MovementRemaining = Movement;
-        MinutesRemaining = GameController.instance.MinutesPerTurn;
+        if(IsMidActionAtTurnEnd()) {
+            MinutesRemaining += GameController.instance.MinutesPerTurn;
+        } else {
+            MinutesRemaining = GameController.instance.MinutesPerTurn;
+        }
     }
 
     /// <summary>
@@ -156,7 +161,7 @@ public class Unit : MapObject, IQPathUnit {
             return false;
         }
 
-        if (MovementRemaining <= 0) {
+        if (MinutesRemaining <= 0) {
             return false;
         }
 
@@ -165,8 +170,10 @@ public class Unit : MapObject, IQPathUnit {
         Hex newHex = hexPath[1];
 
         int costToEnter = MovementCostToEnterHex(newHex);
+        int minutesCost = MyUtils.MinutesPerHex(BaseMoveSpeed);
+        int totalMinutesCost = costToEnter * minutesCost;
 
-        if (costToEnter > MovementRemaining && MovementRemaining < Movement && MOVEMENT_RULES_LIKE_CIV6)
+        if (totalMinutesCost > MinutesRemaining)
         {
             // We can't enter the hex this turn
             return false;
@@ -176,10 +183,11 @@ public class Unit : MapObject, IQPathUnit {
 
         // Move to the new Hex
         SetHex(newHex);
-        MovementRemaining = Mathf.Max(MovementRemaining - costToEnter, 0);
-        MinutesRemaining = Mathf.Max(MinutesRemaining - costToEnter * MyUtils.MinutesPerHex(BaseMoveSpeed), 0);
+        MinutesRemaining = Mathf.Max(MinutesRemaining - totalMinutesCost, 0);
 
-        return CheckHexPathValid();
+        CheckHexPathValid();
+
+        return true;
     }
 
     private bool CheckHexPathValid()
@@ -200,6 +208,10 @@ public class Unit : MapObject, IQPathUnit {
         return true;
     }
 
+    private bool IsMidActionAtTurnEnd() {
+        return (hexPath != null && hexPath.Count > 1);
+    }
+
     public int MovementCostToEnterHex( Hex hex )
     {
         return hex.BaseMovementCost( isHillWalker, isForestWalker, isFlier);
@@ -211,89 +223,28 @@ public class Unit : MapObject, IQPathUnit {
         // with a movement cost greater than your current remaining movement
         // points, this will either result in a cheaper-than expected
         // turn cost (Civ5) or a more-expensive-than expected turn cost (Civ6)
+        // or exactly the expected turn cost by continuing the move at the start of next turn (our system)
 
-        float baseTurnsToEnterHex = MovementCostToEnterHex(hex) / Movement; // Example: Entering a forest is "1" turn
+        int costToEnter = MovementCostToEnterHex(hex);
 
-        if(baseTurnsToEnterHex < 0)
+        if (costToEnter < 0)
         {
             // Impassible terrain
             //Debug.Log("Impassible terrain at:" + hex.ToString());
             return -99999;
         }
 
-        if(baseTurnsToEnterHex > 1)
-        {
-            // Even if something costs 3 to enter and we have a max move of 2, 
-            // you can always enter it using a full turn of movement.
-            baseTurnsToEnterHex = 1;
-        }
+        int minutesCost = MyUtils.MinutesPerHex(BaseMoveSpeed);
+        int totalMinutesCost = costToEnter * minutesCost;
+        int minutesPerTurn = GameController.instance.MinutesPerTurn;
 
-
-        float turnsRemaining = MovementRemaining / Movement;    // Example, if we are at 1/2 move, then we have .5 turns left
-
-        float turnsToDateWhole = Mathf.Floor(turnsToDate); // Example: 4.33 becomes 4
-        float turnsToDateFraction = turnsToDate - turnsToDateWhole; // Example: 4.33 becomes 0.33
-
-        if( (turnsToDateFraction > 0 && turnsToDateFraction < 0.01f) || turnsToDateFraction > 0.99f )
-        {
-            Debug.LogError("Looks like we've got floating-point drift: " + turnsToDate);
-
-            if( turnsToDateFraction < 0.01f )
-                turnsToDateFraction = 0;
-
-            if( turnsToDateFraction > 0.99f )
-            {
-                turnsToDateWhole   += 1;
-                turnsToDateFraction = 0;
-            }
-        }
-
-        float turnsUsedAfterThismove = turnsToDateFraction + baseTurnsToEnterHex; // Example 0.33 + 1
-
-        if(turnsUsedAfterThismove > 1)
-        {
-            // We have hit the situation where we don't actually have enough movement to complete this move.
-            // What do we do?
-
-            if( MOVEMENT_RULES_LIKE_CIV6 )
-            {
-                // We aren't ALLOWED to enter the tile this move. That means, we have to...
-
-                if(turnsToDateFraction == 0)
-                {
-                    // We have full movement, but this isn't enough to enter the tile
-                    // EXAMPLE: We have a max move of 2 but the tile costs 3 to enter.
-                    // We are good to go.
-                }
-                else
-                {
-                    // We are NOT on a fresh turn -- therefore we need to 
-                    // sit idle for the remainder of this turn.
-                    turnsToDateWhole   += 1;
-                    turnsToDateFraction = 0;
-                }
-
-                // So now we know for a fact that we are starting the move into difficult terrain
-                // on a fresh turn.
-                turnsUsedAfterThismove = baseTurnsToEnterHex;
-            }
-            else
-            {
-                // Civ5-style movement state that we can always enter a tile, even if we don't
-                // have enough movement left.
-                turnsUsedAfterThismove = 1;
-            }
-        }
-
-        // turnsUsedAfterThismove is now some value from 0..1. (this includes
-        // the factional part of moves from previous turns).
-
+        float turnsToEnterHex = (float)totalMinutesCost / minutesPerTurn;
 
         // Do we return the number of turns THIS move is going to take?
         // I say no, this an an "aggregate" function, so return the total
         // turn cost of turnsToDate + turns for this move.
 
-        return turnsToDateWhole + turnsUsedAfterThismove;
+        return turnsToDate + turnsToEnterHex;
 
     }
 

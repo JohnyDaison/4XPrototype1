@@ -75,6 +75,7 @@ public class HexMap_Continent : HexMap {
     }
 
     void DefineHexNoiseTypes() {
+        // TODO: These noises have been tuned to 60x30 world map. They should be scaled with number of hexes or with hex diameter.
         if(hexNoiseTypes.Count > 0) {
             return;
         }
