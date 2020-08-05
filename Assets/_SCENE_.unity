@@ -6774,6 +6774,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hexMap: {fileID: 205379550}
+  LayerIDForHexTiles:
+    serializedVersion: 2
+    m_Bits: 256
   MinutesPerTurn: 240
   HexDiameter: 20
 --- !u!4 &734493526
@@ -8858,9 +8861,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c35d801997d7455499e663ac99d3ed14, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LayerIDForHexTiles:
-    serializedVersion: 2
-    m_Bits: 256
 --- !u!4 &1877924323
 Transform:
   m_ObjectHideFlags: 0

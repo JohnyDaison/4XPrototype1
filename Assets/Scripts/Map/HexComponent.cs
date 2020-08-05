@@ -18,4 +18,20 @@ public class HexComponent : MonoBehaviour {
         );
     }
 
+    public float GetVerticalOffset(float x, float z) {
+        float result = 0;
+        float rayStartY = 1f;
+        Vector3 basePos = this.transform.position;
+        Vector3 startingPosition = new Vector3(basePos.x + x, basePos.y + rayStartY, basePos.z + z);
+        Vector3 direction = this.transform.TransformDirection(Vector3.down);
+        RaycastHit hitInfo;
+        int layerMask = GameController.instance.LayerIDForHexTiles.value;
+
+        if( Physics.Raycast(startingPosition, direction, out hitInfo, 2 * rayStartY, layerMask) ) {
+            result = hitInfo.point.y - basePos.y;
+        }
+
+        return result;
+    }
+
 }

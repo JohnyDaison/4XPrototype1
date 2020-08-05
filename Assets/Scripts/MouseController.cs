@@ -41,8 +41,6 @@ public class MouseController : MonoBehaviour
     delegate void UpdateFunc();
     UpdateFunc Update_CurrentFunc;
 
-    public LayerMask LayerIDForHexTiles;
-
     void Update()
     {
         hexUnderMouse = MouseToHex();
@@ -170,7 +168,7 @@ public class MouseController : MonoBehaviour
         Ray mouseRay = Camera.main.ScreenPointToRay (Input.mousePosition);
         RaycastHit hitInfo;
 
-        int layerMask = LayerIDForHexTiles.value;
+        int layerMask = GameController.instance.LayerIDForHexTiles.value;
 
         if( Physics.Raycast(mouseRay, out hitInfo, Mathf.Infinity, layerMask) )
         {

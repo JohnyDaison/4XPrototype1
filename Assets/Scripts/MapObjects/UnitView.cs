@@ -34,8 +34,8 @@ public class UnitView : MonoBehaviour {
         currentVelocity = Vector3.zero;
 
         // TODO:  newPosition's Y component needs to be set from HexComponent's VerticalOffset
-        oldPosition.y += oldHex.HexMap.GetHexGO(oldHex).GetComponent<HexComponent>().VerticalOffset;
-        newPosition.y += newHex.HexMap.GetHexGO(newHex).GetComponent<HexComponent>().VerticalOffset;
+        oldPosition.y += oldHex.HexMap.GetHexGO(oldHex).GetComponent<HexComponent>().GetVerticalOffset(0,0);
+        newPosition.y += newHex.HexMap.GetHexGO(newHex).GetComponent<HexComponent>().GetVerticalOffset(0,0);
         this.transform.position = oldPosition;
 
         if( Vector3.Distance(this.transform.position, newPosition) > 2 )
@@ -83,7 +83,7 @@ public class UnitView : MonoBehaviour {
         // This solves the case when Hex gets wrapped to a new position
         if (this.transform.position != newPosition && !Unit.AnimationIsPlaying) {
             newPosition = Unit.Hex.PositionFromCamera();
-            newPosition.y += HexMap.GetHexGO(Unit.Hex).GetComponent<HexComponent>().VerticalOffset;
+            newPosition.y += HexMap.GetHexGO(Unit.Hex).GetComponent<HexComponent>().GetVerticalOffset(0,0);
         }
 
         this.transform.position = Vector3.SmoothDamp( this.transform.position, newPosition, ref currentVelocity, smoothTime );

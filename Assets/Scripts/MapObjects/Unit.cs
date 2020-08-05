@@ -39,9 +39,6 @@ public class Unit : MapObject, IQPathUnit {
     /// </summary>
     List<Hex> hexPath;
 
-    // TODO: This should probably be moved to some kind of central option/config file
-    const bool MOVEMENT_RULES_LIKE_CIV6 = true;
-
     private void setUnitName(UnitType type) {
         Name = type.name;
     }

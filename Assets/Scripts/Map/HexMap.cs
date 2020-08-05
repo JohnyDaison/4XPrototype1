@@ -263,6 +263,7 @@ public class HexMap : MonoBehaviour, IQPathWorld {
 
         HexComponent hexComp = hexGO.GetComponentInChildren<HexComponent>();
         MeshRenderer mr = hexGO.GetComponentInChildren<MeshRenderer>();
+        MeshCollider mc = hexGO.GetComponentInChildren<MeshCollider>();
         MeshFilter mf = hexGO.GetComponentInChildren<MeshFilter>();
 
         if(hex.Elevation >= HeightMountain)
@@ -289,6 +290,8 @@ public class HexMap : MonoBehaviour, IQPathWorld {
             mr.material = MatOcean;
             mf.mesh = MeshWater;
         }
+
+        mc.sharedMesh = mf.mesh;
     }
 
     public void UpdateHexMoistureVisuals(Hex hex) {
@@ -307,7 +310,7 @@ public class HexMap : MonoBehaviour, IQPathWorld {
 
                 // Spawn trees
                 Vector3 p = hexGO.transform.position;
-                p.y += hexComp.VerticalOffset;
+                p.y += hexComp.GetVerticalOffset(0,0);
 
                 GameObject.Instantiate(JunglePrefab, p, Quaternion.identity, hexGO.transform);
             }
@@ -319,7 +322,7 @@ public class HexMap : MonoBehaviour, IQPathWorld {
 
                 // Spawn trees
                 Vector3 p = hexGO.transform.position;
-                p.y += hexComp.VerticalOffset;
+                p.y += hexComp.GetVerticalOffset(0,0);
 
                 GameObject.Instantiate(ForestPrefab, p, Quaternion.identity, hexGO.transform);
             }
@@ -391,7 +394,7 @@ public class HexMap : MonoBehaviour, IQPathWorld {
         unit.SetHex(myHex);
 
         Vector3 position = myHexGO.transform.position;
-        position.y += hexComp.VerticalOffset;
+        position.y += hexComp.GetVerticalOffset(0,0);
         GameObject unitGO = Instantiate(unit.prefab, position, Quaternion.identity, myHexGO.transform);
         UnitView unitView = unitGO.GetComponent<UnitView>();
         unit.OnObjectMoved += unitView.OnUnitMoved;
@@ -438,7 +441,7 @@ public class HexMap : MonoBehaviour, IQPathWorld {
         }
 
         Vector3 cityPosition = myHexGO.transform.position;
-        cityPosition.y += myHexGO.GetComponent<HexComponent>().VerticalOffset;
+        cityPosition.y += myHexGO.GetComponent<HexComponent>().GetVerticalOffset(0,0);
 
         GameObject cityGO = Instantiate(prefab, cityPosition, Quaternion.identity, myHexGO.transform);
 
@@ -482,7 +485,7 @@ public class HexMap : MonoBehaviour, IQPathWorld {
         }
 
         Vector3 structurePosition = myHexGO.transform.position;
-        structurePosition.y += myHexGO.GetComponent<HexComponent>().VerticalOffset;
+        structurePosition.y += myHexGO.GetComponent<HexComponent>().GetVerticalOffset(0,0);
 
         GameObject structureGO = Instantiate(prefab, structurePosition, Quaternion.identity, myHexGO.transform);
 
