@@ -8,7 +8,7 @@ public class OreMine : SurfaceStructure
         storageContainer.TotalStackCount = 1;
         storageContainer.MaxStackVolume = 1;
         turnController = GameObject.FindObjectOfType<TurnController>();
-        ResourceType ironOre = GameController.instance.ResourceTypeDB.GetResourceTypeById("ironOre1");
+        ResourceType ironOre = GameController.instance.ResourceTypeDB.GetTypeById("ironOre1");
         outputResources.Add(ironOre);
     }
     
@@ -31,7 +31,7 @@ public class OreMine : SurfaceStructure
         Hex.floatParams[Hex.HEX_FLOAT_PARAMS.IronOre] -= extractableOreVolume;
 
         ResourceStorageItem item = new ResourceStorageItem();
-        item.ResourceType = GameController.instance.ResourceTypeDB.GetResourceTypeById("ironOre1");
+        item.ResourceType = GameController.instance.ResourceTypeDB.GetTypeById("ironOre1");
         item.StackVolume = extractableOreVolume;
 
         storageContainer.AddItem(item);

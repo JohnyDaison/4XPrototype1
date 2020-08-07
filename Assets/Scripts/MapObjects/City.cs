@@ -60,7 +60,7 @@ public class City : SurfaceStructure {
         // For testing, build one toucan after the dwarf
         if (buildingJob == null && lastBuiltUnit != null)
         {
-            if (lastBuiltUnit.unitType.id == "truck1") {
+            if (lastBuiltUnit.unitType.ID == "truck1") {
                 buildUnit("toucan1");
             }
         }
@@ -77,7 +77,7 @@ public class City : SurfaceStructure {
     }
 
     bool buildUnit(string unitTypeId) {
-        UnitType unitType = GameController.instance.UnitTypeDB.GetUnitTypeById(unitTypeId);
+        UnitType unitType = GameController.instance.UnitTypeDB.GetTypeById(unitTypeId);
         if (unitType == null) {
             return false;
         }
@@ -110,13 +110,13 @@ public class City : SurfaceStructure {
     }
 
     string getUnitBuildName(UnitType unitType) {
-        return "Building " + unitType.name;
+        return "Building " + unitType.Name;
     }
 
     GameObject getUnitPrefab(UnitType unitType) {
         GameObject prefab = null;
 
-        switch (unitType.id) {
+        switch (unitType.ID) {
             case "human1":
                 prefab = this.Hex.HexMap.UnitHumanPrefab;
                 break;

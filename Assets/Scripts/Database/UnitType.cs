@@ -1,13 +1,14 @@
-public class UnitType
+public class UnitType: GeneralType
 {
     /*  the values in this object should be set only once at the start of the game
         and not changed afterwards
     */
     public UnitType()
     {
+        ID = "EmptyUnitTypeId";
+        Name = "EmptyUnitTypeName";
     }
-    public string id = "EmptyUnitTypeId";
-    public string name = "EmptyUnitTypeName";
+    
     public float width = 0; // side to side
     public float length = 0; // front to back
     public float height = 0; // top to bottom

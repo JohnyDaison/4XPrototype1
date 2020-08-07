@@ -40,7 +40,7 @@ public class Unit : MapObject, IQPathUnit {
     List<Hex> hexPath;
 
     private void setUnitName(UnitType type) {
-        Name = type.name;
+        Name = type.Name;
     }
 
     private void setUnitMovement(UnitType type) {

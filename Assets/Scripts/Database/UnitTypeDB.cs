@@ -1,57 +1,24 @@
-using System.Collections.Generic;
-
 // should be singleton, probably
-public class UnitTypeDB
+public class UnitTypeDB: GeneralTypeDB<UnitType>
 {
     public UnitTypeDB() {
         CreateUnitTypes();
     }
 
-    private Dictionary<string, UnitType> typeDict = new Dictionary<string, UnitType>();
-    private List<string> typeList = new List<string>();
-
-    // readonly by always returning a copy
-    public List<string> GetAllUnitTypes() {
-        return new List<string>(typeList);
-    }
-
-    public UnitType GetUnitTypeById(string id) {
-        if (!typeList.Contains(id)) {
-            return null;
-        }
-        
-        return typeDict[id];
-    }
-
-    private bool AddUnitType(UnitType type) {
-        if (type == null) {
-            return false;
-        }
-
-        if (typeList.Contains(type.id)) {
-            return false;
-        }
-
-        typeList.Add(type.id);
-        typeDict.Add(type.id, type);
-
-        return true;
-    }
-
     private void CreateUnitTypes() {
-        AddUnitType(CreateHuman());
-        AddUnitType(CreateDwarf());
-        AddUnitType(CreateElf());
-        AddUnitType(CreateToucan());
-        AddUnitType(CreateMerman());
-        AddUnitType(CreateTruck());
+        AddType(CreateHuman());
+        AddType(CreateDwarf());
+        AddType(CreateElf());
+        AddType(CreateToucan());
+        AddType(CreateMerman());
+        AddType(CreateTruck());
     }
 
     private UnitType CreateHuman() {
         UnitType type = new UnitType();
 
-        type.id = "human1";
-        type.name = "Human";
+        type.ID = "human1";
+        type.Name = "Human";
         type.cost = 100f;
         type.baseMovementSpeed = 10;
         type.canBuildCities = true;
@@ -62,8 +29,8 @@ public class UnitTypeDB
     private UnitType CreateDwarf() {
         UnitType type = new UnitType();
 
-        type.id = "dwarf1";
-        type.name = "Dwarf";
+        type.ID = "dwarf1";
+        type.Name = "Dwarf";
         type.cost = 100f;
         type.baseMovementSpeed = 10;
         type.canBuildCities = true;
@@ -75,8 +42,8 @@ public class UnitTypeDB
     private UnitType CreateElf() {
         UnitType type = new UnitType();
 
-        type.id = "elf1";
-        type.name = "Elf";
+        type.ID = "elf1";
+        type.Name = "Elf";
         type.cost = 100f;
         type.baseMovementSpeed = 10;
         type.isForestWalker = true;
@@ -87,8 +54,8 @@ public class UnitTypeDB
     private UnitType CreateToucan() {
         UnitType type = new UnitType();
 
-        type.id = "toucan1";
-        type.name = "Toucan";
+        type.ID = "toucan1";
+        type.Name = "Toucan";
         type.cost = 100f;
         type.baseMovementSpeed = 25;
         type.isFlier = true;
@@ -99,8 +66,8 @@ public class UnitTypeDB
     private UnitType CreateMerman() {
         UnitType type = new UnitType();
 
-        type.id = "mermam1";
-        type.name = "Merman";
+        type.ID = "mermam1";
+        type.Name = "Merman";
         type.cost = 100f;
         type.baseMovementSpeed = 10;
         type.isAquatic = true;
@@ -111,8 +78,8 @@ public class UnitTypeDB
     private UnitType CreateTruck() {
         UnitType type = new UnitType();
 
-        type.id = "truck1";
-        type.name = "Truck";
+        type.ID = "truck1";
+        type.Name = "Truck";
         type.cost = 100f;
         type.storageStackCount = 1;
         type.storageStackVolume = 0.5f;
