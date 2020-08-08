@@ -38,6 +38,12 @@ public class Unit : MapObject, IQPathUnit {
     /// NOTE: First item is always the hex we are standing in.
     /// </summary>
     List<Hex> hexPath;
+    public bool hexPathValid {get; private set;} = false;
+
+    public enum WaypointMode { ONCE, CYCLE };
+    List<Hex> waypoints = new List<Hex>();
+    private int currentWaypointIndex = 0;
+    public WaypointMode waypointMode = WaypointMode.ONCE;
 
     private void setUnitName(UnitType type) {
         Name = type.Name;
@@ -61,18 +67,13 @@ public class Unit : MapObject, IQPathUnit {
         storageContainer.MaxStackVolume = type.storageStackVolume;
     }
 
-    public void DUMMY_PATHING_FUNCTION()
+    private void SetPathToHex(Hex targetHex)
     {
-
-        /*QPath.CostEstimateDelegate ced = (IQPathTile a, IQPathTile b) => (
-            return Hex.Distance(a, b);
-        );*/
-
         Hex[] pathHexes = QPathClass.FindPath<Hex>(
             Hex.HexMap, 
             this,
             Hex, 
-            Hex.HexMap.GetHexAt( Hex.Q + 6, Hex.R ), 
+            targetHex, 
             Hex.CostEstimate 
         );
             
@@ -109,6 +110,31 @@ public class Unit : MapObject, IQPathUnit {
     public int GetHexPathLength()
     {
         return this.hexPath.Count;
+    }
+
+    public void AddWaypoint(Hex hex) {
+        if (!waypoints.Contains(hex)) {
+            waypoints.Add(hex);
+        }
+    }
+
+    public void SwitchWaypointMode() {
+        if (waypointMode == WaypointMode.ONCE) {
+            waypointMode = WaypointMode.CYCLE;
+        } else {
+            waypointMode = WaypointMode.ONCE;
+        }
+    }
+
+    public string GetWaypointModeName() {
+        switch (waypointMode) {
+            case WaypointMode.ONCE:
+                return "ONCE";
+            case WaypointMode.CYCLE:
+                return "CYCLE";
+            default:
+                return "ERROR";
+        }
     }
 
     public bool UnitWaitingForOrders()
@@ -190,6 +216,7 @@ public class Unit : MapObject, IQPathUnit {
     private bool CheckHexPathValid()
     {
         if (hexPath == null) {
+            hexPathValid = false;
             return false;
         }
         
@@ -198,11 +225,51 @@ public class Unit : MapObject, IQPathUnit {
             // The only hex left in the list, is the one we are moving to now,
             // therefore we have no more path to follow, so let's just clear
             // the queue completely to avoid confusion.
+            bool hexPathWasValid = hexPathValid;
+
+            hexPathValid = false;
             hexPath = null;
+            if (hexPathWasValid) {
+                HandleWaypoints();
+                return CheckHexPathValid();
+            }
             return false;
         }
 
+        hexPathValid = true;
         return true;
+    }
+
+    private void HandleWaypoints() {
+        if (waypoints.Count > 0) {
+            if (currentWaypointIndex > waypoints.Count - 1) {
+                currentWaypointIndex = 0;
+            }
+            Hex currentWaypoint = waypoints[currentWaypointIndex];
+
+            if (currentWaypoint == Hex) {
+                switch(waypointMode) {
+                    case WaypointMode.ONCE:
+                        waypoints.Remove(currentWaypoint);
+                        if (waypoints.Count == 0) {
+                            return;
+                        }
+                        break;
+
+                    case WaypointMode.CYCLE:
+                        currentWaypointIndex++;
+                        break;
+                }
+
+                currentWaypointIndex = currentWaypointIndex % waypoints.Count;
+            }
+
+            currentWaypoint = waypoints[currentWaypointIndex];
+
+            if (currentWaypoint != Hex) {
+                SetPathToHex(currentWaypoint);
+            }
+        }
     }
 
     private bool IsMidActionAtTurnEnd() {

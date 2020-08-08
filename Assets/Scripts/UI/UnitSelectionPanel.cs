@@ -20,6 +20,8 @@ public class UnitSelectionPanel : MonoBehaviour {
     public Button WarehouseBuildButton;
     public Button MineBuildButton;
     public Button SkipButton;
+    public Button AddWaypointButton;
+    public Button WaypointModeButton;
 
     SelectionController selectionController;
     	
@@ -68,6 +70,12 @@ public class UnitSelectionPanel : MonoBehaviour {
 
             bool canSkip = !unit.AnimationIsPlaying && hexPath == null;
             SkipButton.interactable = canSkip;
+
+            bool canSetWaypoints = !unit.AnimationIsPlaying;
+            AddWaypointButton.interactable = canSetWaypoints;
+
+            string waypointModeName = unit.GetWaypointModeName();
+            WaypointModeButton.GetComponentInChildren<Text>().text = waypointModeName;
         }
 
 	}
