@@ -197,6 +197,7 @@ public class TurnController : MonoBehaviour {
 
         foreach(Unit u in units)
         {
+            u.autoMove = true;
             yield return DoUnitMoves(u, (finished) => {});
         }
         callback(true);

@@ -199,15 +199,19 @@ public class MouseController : MonoBehaviour
 
     void Update_UnitMovement ()
     {
-        if( Input.GetMouseButtonUp(1) || selectionController.SelectedUnit == null )
+        Unit unit = selectionController.SelectedUnit;
+        
+        if( Input.GetMouseButtonUp(1) || unit == null )
         {
             Debug.Log("Complete unit movement.");
 
-            if(selectionController.SelectedUnit != null)
+            if(unit != null)
             {
-                selectionController.SelectedUnit.SetHexPath(hexPath);
+                unit.autoMove = false;
+                
+                unit.SetHexPath(hexPath);
 
-                turnController.MoveUnitDuringTurn(selectionController.SelectedUnit);
+                turnController.MoveUnitDuringTurn(unit);
             }
 
             CancelUpdateFunc();
@@ -222,7 +226,7 @@ public class MouseController : MonoBehaviour
         if( hexPath == null || hexUnderMouse != hexLastUnderMouse )
         {
             // Do a pathfinding search to that hex
-            hexPath = QPath.QPathClass.FindPath<Hex>( hexMap, selectionController.SelectedUnit, selectionController.SelectedUnit.Hex, hexUnderMouse, Hex.CostEstimate );
+            hexPath = QPath.QPathClass.FindPath<Hex>( hexMap, unit, unit.Hex, hexUnderMouse, Hex.CostEstimate );
         }
 
     }

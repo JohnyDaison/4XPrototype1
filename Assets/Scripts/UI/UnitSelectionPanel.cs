@@ -20,8 +20,10 @@ public class UnitSelectionPanel : MonoBehaviour {
     public Button WarehouseBuildButton;
     public Button MineBuildButton;
     public Button SkipButton;
+    public Button GuardButton;
     public Button AddWaypointButton;
     public Button WaypointModeButton;
+    public Button ClearWaypointsButton;
 
     SelectionController selectionController;
     	
@@ -34,7 +36,7 @@ public class UnitSelectionPanel : MonoBehaviour {
 
             Title.text = unit.Name;
 
-            Movement.text = $"Speed: {unit.BaseMoveSpeed}km/h";
+            Movement.text = $"Speed: {unit.BaseMoveSpeed}km/h Waypoints: {unit.GetWaypointCount()}";
             
             string remainingTime = MyUtils.MinutesToTimeDisplayString(unit.MinutesRemaining);
             string timePerTurn = MyUtils.MinutesToTimeDisplayString(GameController.instance.MinutesPerTurn);
@@ -70,9 +72,17 @@ public class UnitSelectionPanel : MonoBehaviour {
 
             bool canSkip = !unit.AnimationIsPlaying && hexPath == null;
             SkipButton.interactable = canSkip;
+            
+            GuardButton.interactable = canSkip;
+            string guardButtonText = "Guard";
+            if (unit.Guarding) {
+                guardButtonText = "Stop Guard";
+            }
+            GuardButton.GetComponentInChildren<Text>().text = guardButtonText;
 
             bool canSetWaypoints = !unit.AnimationIsPlaying;
             AddWaypointButton.interactable = canSetWaypoints;
+            ClearWaypointsButton.interactable = canSetWaypoints;
 
             string waypointModeName = unit.GetWaypointModeName();
             WaypointModeButton.GetComponentInChildren<Text>().text = waypointModeName;

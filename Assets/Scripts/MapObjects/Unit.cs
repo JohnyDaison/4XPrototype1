@@ -29,6 +29,7 @@ public class Unit : MapObject, IQPathUnit {
     public bool isFlier = false;
 
     public bool SkipThisUnit = false;
+    public bool Guarding = false;
 
     public StorageContainer storageContainer = new StorageContainer();
 
@@ -44,6 +45,7 @@ public class Unit : MapObject, IQPathUnit {
     List<Hex> waypoints = new List<Hex>();
     private int currentWaypointIndex = 0;
     public WaypointMode waypointMode = WaypointMode.ONCE;
+    public bool autoMove = false;
 
     private void setUnitName(UnitType type) {
         Name = type.Name;
@@ -91,6 +93,7 @@ public class Unit : MapObject, IQPathUnit {
     public void SetHexPath( Hex[] hexArray )
     {
         SkipThisUnit = false;
+        Guarding = false;
 
         if (hexArray == null)
         {
@@ -118,6 +121,14 @@ public class Unit : MapObject, IQPathUnit {
         }
     }
 
+    public int GetWaypointCount() {
+        return waypoints.Count;
+    }
+
+    public void ClearWaypoints() {
+        waypoints.Clear();
+    }
+
     public void SwitchWaypointMode() {
         if (waypointMode == WaypointMode.ONCE) {
             waypointMode = WaypointMode.CYCLE;
@@ -139,7 +150,7 @@ public class Unit : MapObject, IQPathUnit {
 
     public bool UnitWaitingForOrders()
     {
-        if(SkipThisUnit)
+        if(SkipThisUnit || Guarding)
         {
             return false;
         }
@@ -215,36 +226,45 @@ public class Unit : MapObject, IQPathUnit {
 
     private bool CheckHexPathValid()
     {
-        if (hexPath == null) {
-            hexPathValid = false;
-            return false;
-        }
+        bool result = true;
         
-        if (hexPath.Count <= 1)
-        {
+        if (hexPath == null) {
+            result = false;
+        } else if (hexPath.Count <= 1) {
             // The only hex left in the list, is the one we are moving to now,
             // therefore we have no more path to follow, so let's just clear
             // the queue completely to avoid confusion.
-            bool hexPathWasValid = hexPathValid;
-
-            hexPathValid = false;
             hexPath = null;
-            if (hexPathWasValid) {
-                HandleWaypoints();
-                return CheckHexPathValid();
-            }
+            result = false;
+        }
+
+        if(ShouldGoToNextWaypoint()) {
+            HandleWaypoints();
+            result = CheckHexPathValid();
+        }
+
+        hexPathValid = result;
+        return result;
+    }
+
+    private bool ShouldGoToNextWaypoint() {
+        bool waypointExists = waypoints.Count > 0;
+        bool wantNewDestination = autoMove && hexPath == null;
+        if (!waypointExists || !wantNewDestination) {
             return false;
         }
 
-        hexPathValid = true;
-        return true;
+        if (currentWaypointIndex > waypoints.Count - 1) {
+            currentWaypointIndex = 0;
+        }
+
+        Hex currentWaypoint = waypoints[currentWaypointIndex];
+
+        return waypoints.Count > 1 || currentWaypoint != Hex;
     }
 
     private void HandleWaypoints() {
-        if (waypoints.Count > 0) {
-            if (currentWaypointIndex > waypoints.Count - 1) {
-                currentWaypointIndex = 0;
-            }
+        if (ShouldGoToNextWaypoint()) {
             Hex currentWaypoint = waypoints[currentWaypointIndex];
 
             if (currentWaypoint == Hex) {

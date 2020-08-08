@@ -15,10 +15,31 @@ public class UnitPanelButtons : MonoBehaviour {
         }
 
         u.SkipThisUnit = true;
+        u.ClearWaypoints();
 
         // Might as well go to the next idle unit
 
         sc.SelectNextUnit( true );
+    }
+
+    public void ToggleUnitGuard()
+    {
+        SelectionController sc = GameObject.FindObjectOfType<SelectionController>();
+
+        Unit u = sc.SelectedUnit;
+
+        if(u == null)
+        {
+            Debug.LogError("How is this button active if there's no selected unit?!?!?!");
+            return;
+        }
+
+        u.Guarding = !u.Guarding;
+
+        if(u.Guarding) {
+            u.ClearWaypoints();
+            sc.SelectNextUnit( true );
+        }
     }
 
     public void BuildCity()
@@ -86,5 +107,12 @@ public class UnitPanelButtons : MonoBehaviour {
     public void SwitchWaypointMode() {
         SelectionController sc = GameObject.FindObjectOfType<SelectionController>();
         sc.SelectedUnit.SwitchWaypointMode();
+    }
+
+    public void ClearWaypoints() {
+        SelectionController sc = GameObject.FindObjectOfType<SelectionController>();
+        Unit unit = sc.SelectedUnit;
+
+        unit.ClearWaypoints();
     }
 }
