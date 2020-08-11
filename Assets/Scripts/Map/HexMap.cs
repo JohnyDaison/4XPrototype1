@@ -317,6 +317,10 @@ public class HexMap : MonoBehaviour, IQPathWorld {
         Mesh mesh = new Mesh();
 
         float baseY = hex.Elevation;
+        if (baseY > 0) {
+            baseY = Mathf.Pow(hex.Elevation, 2f);
+        }
+        
         List<Node> vertices = new List<Node>();
         List<int> triangles = new List<int>();
         Node hexCenter = new Node(0, baseY, 0);
@@ -367,14 +371,20 @@ public class HexMap : MonoBehaviour, IQPathWorld {
         Hex bottomLeft = GetHexAt( hex.Q + 0,  hex.R - 1 );
         Hex bottomRight = GetHexAt( hex.Q + 1,  hex.R - 1 );
 
-        vertices.Add(new Node(0, GetAverageElevation(hex, topLeft, topRight), 1f));
-        vertices.Add(new Node(xOffset, GetAverageElevation(hex, topRight, right), 0.5f));
-        vertices.Add(new Node(xOffset, GetAverageElevation(hex, right, bottomRight), -0.5f));
-        vertices.Add(new Node(0, GetAverageElevation(hex, bottomRight, bottomLeft), -1f));
-        vertices.Add(new Node(-xOffset, GetAverageElevation(hex, bottomLeft, left), -0.5f));
-        vertices.Add(new Node(-xOffset, GetAverageElevation(hex, left, topLeft), 0.5f));
+        AddVertex(vertices, new Vector3(0, 0, 1f), hex, topLeft, topRight);
+        AddVertex(vertices, new Vector3(xOffset, 0, 0.5f), hex, topRight, right);
+        AddVertex(vertices, new Vector3(xOffset, 0, -0.5f), hex, right, bottomRight);
+        AddVertex(vertices, new Vector3(0, 0, -1f), hex, bottomRight, bottomLeft);
+        AddVertex(vertices, new Vector3(-xOffset, 0, -0.5f), hex, bottomLeft, left);
+        AddVertex(vertices, new Vector3(-xOffset, 0, 0.5f), hex, left, topLeft);
 
         return vertices;
+    }
+
+    private void AddVertex(List<Node> vertices, Vector3 baseVector, Hex mainHex, Hex otherHex1, Hex otherHex2) {
+        vertices.Add(new Node(  baseVector.x + GetAverageXOffset(mainHex, otherHex1, otherHex2), 
+                                baseVector.y + GetAverageElevation(mainHex, otherHex1, otherHex2),
+                                baseVector.z + GetAverageZOffset(mainHex, otherHex1, otherHex2)));
     }
 
     private float GetAverageElevation(Hex hex1, Hex hex2, Hex hex3) {
@@ -385,7 +395,7 @@ public class HexMap : MonoBehaviour, IQPathWorld {
         }
 
         if (hex2 != null) {
-            total += hex2.Elevation;
+            total += hex2.Elevation;            
         }
 
         if (hex3 != null) {
@@ -393,10 +403,52 @@ public class HexMap : MonoBehaviour, IQPathWorld {
         }
 
         float result = total / 3f;
+        if (result > 0) {
+            result = Mathf.Pow(result, 2f);
+        }
 
         return result;
     }
 
+    private float GetAverageXOffset(Hex hex1, Hex hex2, Hex hex3) {
+        float total = 0;
+        
+        if (hex1 != null) {
+            total += hex1.xOffset;
+        }
+
+        if (hex2 != null) {
+            total += hex2.xOffset;
+        }
+
+        if (hex3 != null) {
+            total += hex3.xOffset;
+        }
+
+        float result = total / 3f;
+
+        return result;
+    }
+
+    private float GetAverageZOffset(Hex hex1, Hex hex2, Hex hex3) {
+        float total = 0;        
+
+        if (hex1 != null) {
+            total += hex1.zOffset;            
+        }
+
+        if (hex2 != null) {
+            total += hex2.zOffset;
+        }
+
+        if (hex3 != null) {
+            total += hex3.zOffset;
+        }
+
+        float result = total / 3f;
+
+        return result;
+    }
     private void AddTriangle(List<int> triangles, Node node1, Node node2, Node node3) {
         triangles.Add(node1.vertexIndex);
         triangles.Add(node2.vertexIndex);
