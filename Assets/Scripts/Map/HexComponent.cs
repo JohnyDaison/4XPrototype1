@@ -20,7 +20,7 @@ public class HexComponent : MonoBehaviour {
 
     public float GetVerticalOffset(float x, float z) {
         float result = 0;
-        float rayStartY = 1f;
+        float rayStartY = 3f;
         Vector3 basePos = this.transform.position;
         Vector3 startingPosition = new Vector3(basePos.x + x, basePos.y + rayStartY, basePos.z + z);
         Vector3 direction = this.transform.TransformDirection(Vector3.down);

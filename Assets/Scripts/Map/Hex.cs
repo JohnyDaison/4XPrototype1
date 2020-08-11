@@ -32,6 +32,9 @@ public class Hex : IQPathTile {
     public readonly int R;  // Row
     public readonly int S;
 
+    public float xOffset = UnityEngine.Random.Range(0, 1f) - 0.5f;
+    public float zOffset = UnityEngine.Random.Range(0, 1f) - 0.5f;
+
     // Data for map generation and maybe in-game effects
     public enum HEX_FLOAT_PARAMS { Elevation, Moisture, IronOre };
     public Dictionary<HEX_FLOAT_PARAMS, float> floatParams = new Dictionary<HEX_FLOAT_PARAMS, float>();
