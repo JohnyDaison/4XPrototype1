@@ -39,6 +39,4 @@ public static class MyUtils
         float hexes = GameController.instance.MinutesPerTurn / MinutesPerHex(baseSpeed);
         return hexes;
     }
-
-    public static float hexTriangleHeight = Mathf.Sqrt(3)/2;
 }

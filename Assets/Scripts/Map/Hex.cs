@@ -23,6 +23,8 @@ public class Hex : IQPathTile {
         floatParams[HEX_FLOAT_PARAMS.Elevation] = 0;
         floatParams[HEX_FLOAT_PARAMS.Moisture] = 0;
         floatParams[HEX_FLOAT_PARAMS.IronOre] = 0;
+        floatParams[HEX_FLOAT_PARAMS.XOffset] = UnityEngine.Random.Range(0, 1f) - 0.5f;
+        floatParams[HEX_FLOAT_PARAMS.ZOffset] = UnityEngine.Random.Range(0, 1f) - 0.5f;
     }
 
     // Q + R + S = 0
@@ -32,11 +34,8 @@ public class Hex : IQPathTile {
     public readonly int R;  // Row
     public readonly int S;
 
-    public float xOffset = UnityEngine.Random.Range(0, 1f) - 0.5f;
-    public float zOffset = UnityEngine.Random.Range(0, 1f) - 0.5f;
-
     // Data for map generation and maybe in-game effects
-    public enum HEX_FLOAT_PARAMS { Elevation, Moisture, IronOre };
+    public enum HEX_FLOAT_PARAMS { Elevation, Moisture, IronOre, XOffset, ZOffset };
     public Dictionary<HEX_FLOAT_PARAMS, float> floatParams = new Dictionary<HEX_FLOAT_PARAMS, float>();
     
     public float Elevation {
@@ -125,8 +124,10 @@ public class Hex : IQPathTile {
         return HexMap.GetHexPosition(this);
     }
 
-    public Vector3 PositionFromCamera( Vector3 cameraPosition, float numRows, float numColumns )
+    public Vector3 PositionFromCamera( Vector3 cameraPosition)
     {
+        float numRows = HexMap.NumRows;
+        float numColumns = HexMap.NumColumns;
         float mapHeight = numRows * HexVerticalSpacing();
         float mapWidth  = numColumns * HexHorizontalSpacing();
 

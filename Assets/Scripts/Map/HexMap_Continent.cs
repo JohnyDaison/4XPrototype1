@@ -22,9 +22,10 @@ public class HexMap_Continent : HexMap {
             1570814268 - a lot of mountains on perimeter
             1175914183 - nice terrain
             1791841673 - interesting terrain
+            1879764718 - dynamic meshes testing
         */
 
-        int seed = Random.Range(0, int.MaxValue);
+        int seed = 1879764718;
         Random.InitState(seed);
         Debug.LogFormat("seed: {0}", seed);
 
