@@ -1,13 +1,16 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 public class HexMesh
 {
-    private class Node
+    private class Node : IComparable
     {
         public Vector3 position;
         public int vertexIndex = -1;
         public List<Node> connected = new List<Node>();
         public bool renderingDone = false;
+
+        public float sortingAngle;
 
         public Node(Vector3 _pos)
         {
@@ -17,6 +20,19 @@ public class HexMesh
         public Node(float x, float y, float z)
         {
             position = new Vector3(x, y, z);
+        }
+
+        public int CompareTo(System.Object obj)
+        {
+            if (obj == null) return 1;
+
+            Node otherNode = obj as Node;
+
+            if (otherNode != null) {
+                return this.sortingAngle.CompareTo(otherNode.sortingAngle);
+            } else {
+                throw new ArgumentException("Object is not a Node");
+            }
         }
     }
 
@@ -58,6 +74,9 @@ public class HexMesh
         {
             Node vertex = vertices[vertexIndex];
             List<Node> connected = vertex.connected;
+
+            SortConnectedList(vertex, connected);
+
             for (int connectedIndex = 0; connectedIndex < connected.Count; connectedIndex++)
             {
                 int nextIndex = connectedIndex + 1;
@@ -76,6 +95,22 @@ public class HexMesh
 
             vertex.renderingDone = true;
         }
+    }
+
+    private void SortConnectedList(Node mainNode, List<Node> list) {
+        list.ForEach((Node node) => {
+            node.sortingAngle = GetSignedAngle(mainNode.position, node.position);
+            if (node.sortingAngle < 0) {
+                node.sortingAngle += 360;
+            }
+        });
+        list.Sort();
+    }
+
+    private float GetSignedAngle(Vector3 main, Vector3 other) {
+        Vector2 nodePos = new Vector2(other.x, other.z);
+        Vector2 mainNodePos = new Vector2(main.x, main.z);
+        return Vector2.SignedAngle(nodePos - mainNodePos, Vector2.up);
     }
 
     private void Clear()
@@ -99,19 +134,18 @@ public class HexMesh
 
     private void CalculateHexNodes(Hex hex)
     {
-        float baseY = hex.Elevation;
-        if (baseY > 0)
-        {
-            baseY = Mathf.Pow(hex.Elevation, 2f);
-        }
-        
-        Node hexCenter = new Node(0, baseY, 0);
+        HexMap map = hex.HexMap;
+        Hex topLeft = map.GetHexAt(hex.Q - 1, hex.R + 1);
+        Hex topRight = map.GetHexAt(hex.Q + 0, hex.R + 1);
+        Hex right = map.GetHexAt(hex.Q + 1, hex.R);
+
+        Node hexCenter = MakeWeightedNode(Vector3.zero, hex, topLeft, topRight, right);
 
         AddNodeToMainList(hexCenter);
 
         List<List<Node>> rings = new List<List<Node>>();
 
-        int ringCount = 1;
+        int ringCount = 4;
         float maxRingSize = hexTriangleSide;
         List<Node> previousRing = null;
 
@@ -125,24 +159,24 @@ public class HexMesh
             for(int nodeIndex = 0; nodeIndex < ring.Count; nodeIndex++) {
                 Node node = ring[nodeIndex];
                 
-                int nextIndex = nodeIndex + 1;
-                if (nextIndex == ring.Count)
+                int prevIndex = nodeIndex - 1;
+                if (prevIndex < 0)
                 {
-                    nextIndex = 0;
+                    prevIndex = ring.Count - 1;
                 }
 
                 AddNodeToMainList(node);
                 if (ringIndex == 0) {
                     ConnectNodes(hexCenter, node);
                 } else {
-                    float fuzzyIndex = nodeIndex * (float)(segments-1) / (float)segments;
+                    float fuzzyIndex = (float)nodeIndex * (float)(segments-1) / (float)segments;
                     int lowerIndex = (int) Mathf.Floor(fuzzyIndex) % previousRing.Count;
                     int upperIndex = (int) Mathf.Ceil(fuzzyIndex) % previousRing.Count;
                     ConnectNodes(node, previousRing[lowerIndex]);
                     ConnectNodes(node, previousRing[upperIndex]);
                 }
 
-                ConnectNodes(node, ring[nextIndex]);
+                ConnectNodes(ring[prevIndex], node);
             };
 
             previousRing = ring;
@@ -153,7 +187,7 @@ public class HexMesh
         if (node1 == node2) {
             return;
         }
-        
+
         if (!node1.connected.Contains(node2)) {
             node1.connected.Add(node2);
         }
@@ -182,7 +216,7 @@ public class HexMesh
     }
 
     private void AddHexLine(List<Node> vertices, Vector3 lineStart, Vector3 lineEnd, int lineSegments, Hex mainHex, Hex antiClockwiseHex, Hex oppositeHex, Hex clockwiseHex) {
-        Vector3 currentPoint = lineStart;
+        Vector3 currentPoint;
 
         if (lineSegments < 1) {
             return;
@@ -191,18 +225,25 @@ public class HexMesh
         Vector3 difference = lineEnd - lineStart;
 
         for(int segmentIndex = 0; segmentIndex < lineSegments; segmentIndex++) {
+            float lineProgression = (float)segmentIndex / (float)lineSegments;
+            currentPoint = lineStart + lineProgression * difference;
             Node node = AddVertex(vertices, currentPoint, mainHex, antiClockwiseHex, oppositeHex, clockwiseHex);
-            currentPoint = lineStart + (float)segmentIndex/(float)lineSegments * difference;
         }
     }
 
     private Node AddVertex(List<Node> vertices, Vector3 baseVector, Hex mainHex, Hex antiClockwiseHex, Hex oppositeHex, Hex clockwiseHex) {
-        Node node = new Node(  baseVector.x + GetWeightedFloatParam(Hex.HEX_FLOAT_PARAMS.XOffset, baseVector, false, mainHex, antiClockwiseHex, oppositeHex, clockwiseHex), 
-                                baseVector.y + GetWeightedFloatParam(Hex.HEX_FLOAT_PARAMS.Elevation, baseVector, true, mainHex, antiClockwiseHex, oppositeHex, clockwiseHex),
-                                baseVector.z + GetWeightedFloatParam(Hex.HEX_FLOAT_PARAMS.ZOffset, baseVector, false, mainHex, antiClockwiseHex, oppositeHex, clockwiseHex));
+        Node node = MakeWeightedNode(baseVector, mainHex, antiClockwiseHex, oppositeHex, clockwiseHex);
         vertices.Add(node);
 
         return node;
+    }
+
+    private Node MakeWeightedNode(Vector3 baseVector, Hex mainHex, Hex antiClockwiseHex, Hex oppositeHex, Hex clockwiseHex) {
+        Vector3 absolutePosition = mainHex.PositionFromCamera(mainHex.Position()) + baseVector;
+
+        return new Node(  baseVector.x + GetWeightedFloatParam(Hex.HEX_FLOAT_PARAMS.XOffset, baseVector, false, mainHex, antiClockwiseHex, oppositeHex, clockwiseHex), 
+                                baseVector.y + GetWeightedFloatParam(Hex.HEX_FLOAT_PARAMS.Elevation, baseVector, true, mainHex, antiClockwiseHex, oppositeHex, clockwiseHex),
+                                baseVector.z + GetWeightedFloatParam(Hex.HEX_FLOAT_PARAMS.ZOffset, baseVector, false, mainHex, antiClockwiseHex, oppositeHex, clockwiseHex));
     }
 
     private float GetWeightedFloatParam(Hex.HEX_FLOAT_PARAMS param, Vector3 relativePosition, bool squared, Hex mainHex, Hex antiClockwiseHex, Hex oppositeHex, Hex clockwiseHex) {

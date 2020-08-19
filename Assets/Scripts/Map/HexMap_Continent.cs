@@ -25,7 +25,7 @@ public class HexMap_Continent : HexMap {
             1879764718 - dynamic meshes testing
         */
 
-        int seed = 1879764718;
+        int seed = Random.Range(0, int.MaxValue);
         Random.InitState(seed);
         Debug.LogFormat("seed: {0}", seed);
 

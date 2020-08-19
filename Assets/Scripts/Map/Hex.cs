@@ -23,8 +23,8 @@ public class Hex : IQPathTile {
         floatParams[HEX_FLOAT_PARAMS.Elevation] = 0;
         floatParams[HEX_FLOAT_PARAMS.Moisture] = 0;
         floatParams[HEX_FLOAT_PARAMS.IronOre] = 0;
-        floatParams[HEX_FLOAT_PARAMS.XOffset] = UnityEngine.Random.Range(0, 1f) - 0.5f;
-        floatParams[HEX_FLOAT_PARAMS.ZOffset] = UnityEngine.Random.Range(0, 1f) - 0.5f;
+        floatParams[HEX_FLOAT_PARAMS.XOffset] = UnityEngine.Random.Range(0, 0.5f) - 0.25f;
+        floatParams[HEX_FLOAT_PARAMS.ZOffset] = UnityEngine.Random.Range(0, 0.5f) - 0.25f;
     }
 
     // Q + R + S = 0
