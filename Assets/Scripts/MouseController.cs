@@ -122,6 +122,10 @@ public class MouseController : MonoBehaviour
         {
             Debug.Log("MOUSE UP -- click!");
 
+            if (hexUnderMouse == null) {
+                return;
+            }
+            
             // TODO: Are we clicking on a hex with a unit?
             //          If so, select it
 

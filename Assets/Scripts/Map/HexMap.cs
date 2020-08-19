@@ -267,20 +267,20 @@ public class HexMap : MonoBehaviour, IQPathWorld {
         if(hex.Elevation >= HeightMountain)
         {
             mr.material = MatMountains;
-            mf.mesh = MeshMountain;
+            // mf.mesh = MeshMountain;
             hex.ElevationType = Hex.ELEVATION_TYPE.MOUNTAIN;
             hexComp.VerticalOffset = 0.83f;
         }
         else if(hex.Elevation >= HeightHill)
         {
             hex.ElevationType = Hex.ELEVATION_TYPE.HILL;
-            mf.mesh = MeshHill;
+            // mf.mesh = MeshHill;
             hexComp.VerticalOffset = 0.25f;
         }
         else if(hex.Elevation >= HeightFlat)
         {
             hex.ElevationType = Hex.ELEVATION_TYPE.FLAT;
-            mf.mesh = MeshFlat;
+            // mf.mesh = MeshFlat;
         }
         else
         {
