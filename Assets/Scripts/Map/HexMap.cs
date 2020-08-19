@@ -114,6 +114,8 @@ public class HexMap : MonoBehaviour, IQPathWorld {
     private Dictionary<City, GameObject> cityToGameObjectMap;
     private Dictionary<SurfaceStructure, GameObject> structureToGameObjectMap;
 
+    private HexMesh hexMesh = new HexMesh();
+
     public Hex GetHexAt(int x, int y)
     {
         if(hexes == null)
@@ -188,7 +190,7 @@ public class HexMap : MonoBehaviour, IQPathWorld {
 
     public Vector3 GetHexPosition(Hex hex)
     {
-        return hex.PositionFromCamera( Camera.main.transform.position, NumRows, NumColumns );
+        return hex.PositionFromCamera( Camera.main.transform.position);
     }
 
 
@@ -209,11 +211,7 @@ public class HexMap : MonoBehaviour, IQPathWorld {
 
                 hexes[ column, row ] = h;
 
-                Vector3 pos = h.PositionFromCamera( 
-                    Camera.main.transform.position, 
-                    NumRows, 
-                    NumColumns 
-                );
+                Vector3 pos = h.PositionFromCamera(Camera.main.transform.position);
 
 
                 GameObject hexGO = Instantiate(
@@ -290,169 +288,11 @@ public class HexMap : MonoBehaviour, IQPathWorld {
             mr.material = MatOcean;
         }
 
-        mf.mesh = GenerateHexMesh(hex);
+        mf.mesh = hexMesh.GenerateHexMesh(hex);
         Transform[] childTransform = hexGO.GetComponentsInChildren<Transform>();
         childTransform[1].rotation = new Quaternion(0f, 0f, 0f, transform.rotation.w);
 
         mc.sharedMesh = mf.mesh;
-    }
-
-    private class Node
-    {
-        public Vector3 position;
-        public int vertexIndex = -1;
-
-        public Node(Vector3 _pos)
-        {
-            position = _pos;
-        }
-
-        public Node(float x, float y, float z)
-        {
-            position = new Vector3(x, y, z);
-        }
-    }
-
-    private Mesh GenerateHexMesh(Hex hex) {
-        Mesh mesh = new Mesh();
-
-        float baseY = hex.Elevation;
-        if (baseY > 0) {
-            baseY = Mathf.Pow(hex.Elevation, 2f);
-        }
-        
-        List<Node> vertices = new List<Node>();
-        List<int> triangles = new List<int>();
-        Node hexCenter = new Node(0, baseY, 0);
-
-        AddNode(vertices, hexCenter);
-
-        List<Node> perimeter = CalculateHexPerimeter(hex);
-
-        perimeter.ForEach((Node node) => AddNode(vertices, node));
-
-        for(int i = 0; i < perimeter.Count; i++) {
-            int nextIndex = i+1;
-            if (nextIndex == perimeter.Count) {
-                nextIndex = 0;
-            }
-            AddTriangle(triangles, hexCenter, perimeter[i], perimeter[nextIndex]);
-        }
-
-        mesh.vertices = GetVerticesFromNodeList(vertices);
-        mesh.triangles = triangles.ToArray();
-
-        mesh.RecalculateNormals();
-
-        return mesh;
-    }
-
-    private void AddNode(List<Node> list, Node node) {
-        node.vertexIndex = list.Count;
-        list.Add(node);
-
-    }
-
-    private Vector3[] GetVerticesFromNodeList(List<Node> list) {
-        List<Vector3> result = new List<Vector3>();
-        list.ForEach((Node node) => result.Add(node.position));
-
-        return result.ToArray();
-    }
-
-    private List<Node> CalculateHexPerimeter(Hex hex) {
-        List<Node> vertices = new List<Node>();
-        float xOffset = MyUtils.hexTriangleHeight;
-
-        Hex topLeft = GetHexAt( hex.Q - 1,  hex.R + 1 );
-        Hex topRight = GetHexAt( hex.Q + 0,  hex.R + 1 );
-        Hex left = GetHexAt( hex.Q - 1,  hex.R );
-        Hex right = GetHexAt( hex.Q + 1,  hex.R );
-        Hex bottomLeft = GetHexAt( hex.Q + 0,  hex.R - 1 );
-        Hex bottomRight = GetHexAt( hex.Q + 1,  hex.R - 1 );
-
-        AddVertex(vertices, new Vector3(0, 0, 1f), hex, topLeft, topRight);
-        AddVertex(vertices, new Vector3(xOffset, 0, 0.5f), hex, topRight, right);
-        AddVertex(vertices, new Vector3(xOffset, 0, -0.5f), hex, right, bottomRight);
-        AddVertex(vertices, new Vector3(0, 0, -1f), hex, bottomRight, bottomLeft);
-        AddVertex(vertices, new Vector3(-xOffset, 0, -0.5f), hex, bottomLeft, left);
-        AddVertex(vertices, new Vector3(-xOffset, 0, 0.5f), hex, left, topLeft);
-
-        return vertices;
-    }
-
-    private void AddVertex(List<Node> vertices, Vector3 baseVector, Hex mainHex, Hex otherHex1, Hex otherHex2) {
-        vertices.Add(new Node(  baseVector.x + GetAverageXOffset(mainHex, otherHex1, otherHex2), 
-                                baseVector.y + GetAverageElevation(mainHex, otherHex1, otherHex2),
-                                baseVector.z + GetAverageZOffset(mainHex, otherHex1, otherHex2)));
-    }
-
-    private float GetAverageElevation(Hex hex1, Hex hex2, Hex hex3) {
-        float total = 0;
-
-        if (hex1 != null) {
-            total += hex1.Elevation;
-        }
-
-        if (hex2 != null) {
-            total += hex2.Elevation;            
-        }
-
-        if (hex3 != null) {
-            total += hex3.Elevation;
-        }
-
-        float result = total / 3f;
-        if (result > 0) {
-            result = Mathf.Pow(result, 2f);
-        }
-
-        return result;
-    }
-
-    private float GetAverageXOffset(Hex hex1, Hex hex2, Hex hex3) {
-        float total = 0;
-        
-        if (hex1 != null) {
-            total += hex1.xOffset;
-        }
-
-        if (hex2 != null) {
-            total += hex2.xOffset;
-        }
-
-        if (hex3 != null) {
-            total += hex3.xOffset;
-        }
-
-        float result = total / 3f;
-
-        return result;
-    }
-
-    private float GetAverageZOffset(Hex hex1, Hex hex2, Hex hex3) {
-        float total = 0;        
-
-        if (hex1 != null) {
-            total += hex1.zOffset;            
-        }
-
-        if (hex2 != null) {
-            total += hex2.zOffset;
-        }
-
-        if (hex3 != null) {
-            total += hex3.zOffset;
-        }
-
-        float result = total / 3f;
-
-        return result;
-    }
-    private void AddTriangle(List<int> triangles, Node node1, Node node2, Node node3) {
-        triangles.Add(node1.vertexIndex);
-        triangles.Add(node2.vertexIndex);
-        triangles.Add(node3.vertexIndex);
     }
 
     public void UpdateHexMoistureVisuals(Hex hex) {

@@ -11,11 +11,7 @@ public class HexComponent : MonoBehaviour {
 
     public void UpdatePosition()
     {
-        this.transform.position = Hex.PositionFromCamera(
-            Camera.main.transform.position,
-            HexMap.NumRows,
-            HexMap.NumColumns
-        );
+        this.transform.position = Hex.PositionFromCamera(Camera.main.transform.position);
     }
 
     public float GetVerticalOffset(float x, float z) {
