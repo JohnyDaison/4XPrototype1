@@ -82,7 +82,7 @@ public class HexMap : MonoBehaviour, IQPathWorld {
     [System.NonSerialized] public int NumColumns = 60;
 
     // TODO: Link up with the Hex class's version of this
-    [System.NonSerialized] public bool AllowWrapEastWest = true;
+    [System.NonSerialized] public bool AllowWrapEastWest = false;
     [System.NonSerialized] public bool AllowWrapNorthSouth = false;
 
     private Hex[,] hexes;
@@ -235,7 +235,7 @@ public class HexMap : MonoBehaviour, IQPathWorld {
             }
         }
 
-        UpdateHexVisuals();
+        //UpdateHexVisuals();
 
         //StaticBatchingUtility.Combine( this.gameObject );
     }
@@ -371,11 +371,20 @@ public class HexMap : MonoBehaviour, IQPathWorld {
     {
         List<Hex> results = new List<Hex>();
 
+        if (centerHex == null) {
+            Debug.LogWarning("centerHex is null");
+            return results.ToArray();
+        }
+
         for (int dx = -range; dx < range-1; dx++)
         {
             for (int dy = Mathf.Max(-range+1, -dx-range); dy < Mathf.Min(range, -dx+range-1); dy++)
             {
-                results.Add( GetHexAt(centerHex.Q + dx, centerHex.R + dy) );
+                Hex hex = GetHexAt(centerHex.Q + dx, centerHex.R + dy);
+
+                if (hex != null) {
+                    results.Add(hex);
+                }
             }
         }
 

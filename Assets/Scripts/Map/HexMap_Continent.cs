@@ -68,6 +68,7 @@ public class HexMap_Continent : HexMap {
                 int range = Random.Range(5, 8);
                 int y = Random.Range(range, NumRows - range);
                 int x = Random.Range(0, 10) - y/2 + (c * continentSpacing);
+                x = (x+NumColumns) % NumColumns;
 
                 ElevateArea(x, y, range);
             }
@@ -101,6 +102,20 @@ public class HexMap_Continent : HexMap {
             new Vector2( Random.Range(0f, 1f), Random.Range(0f, 1f) ), 
             1f,
             0));
+
+        hexNoiseTypes.Add(new HexPerlinNoiseType(
+            Hex.HEX_FLOAT_PARAMS.XOffset, 
+            1f, 
+            new Vector2( Random.Range(0f, 1f), Random.Range(0f, 1f) ), 
+            0.5f,
+            -0.25f));
+
+        hexNoiseTypes.Add(new HexPerlinNoiseType(
+            Hex.HEX_FLOAT_PARAMS.ZOffset, 
+            1f, 
+            new Vector2( Random.Range(0f, 1f), Random.Range(0f, 1f) ), 
+            .5f,
+            -0.25f));
     }
 
     void ApplyHexNoiseTypes() {
@@ -113,17 +128,20 @@ public class HexMap_Continent : HexMap {
                 Hex hex = GetHexAt(column, row);
 
                 hexNoiseTypes.ForEach((HexPerlinNoiseType noiseType) => {
-                    float noiseValue = 
-                        Mathf.PerlinNoise( ((column/maxCoordinate) / noiseType.NoiseResolution) + noiseType.NoiseOffset.x,
-                            ((row/maxCoordinate) / noiseType.NoiseResolution) + noiseType.NoiseOffset.y );
-
-                     // According to documentation, values slightly out range can happen, so prevent it
-                    noiseValue = Mathf.Clamp(noiseValue, 0f, 1f);
-
-                    hex.floatParams[noiseType.HexParam] += (noiseValue * noiseType.NoiseScale) + noiseType.NoiseValueOffset;
+                    hex.floatParams[noiseType.HexParam] += SampleNoiseType(noiseType, column/maxCoordinate, row/maxCoordinate);
                 });
             }
         }
+    }
+
+    public float SampleNoiseType(HexPerlinNoiseType noiseType, float x, float y) {
+        float noiseValue = Mathf.PerlinNoise(   (x / noiseType.NoiseResolution) + noiseType.NoiseOffset.x ,
+                                                (y / noiseType.NoiseResolution) + noiseType.NoiseOffset.y );
+
+        // According to documentation, values slightly out range can happen, so prevent it
+        noiseValue = Mathf.Clamp(noiseValue, 0f, 1f);
+
+        return (noiseValue * noiseType.NoiseScale) + noiseType.NoiseValueOffset;
     }
 
     void CreateStartingUnit(Player player) {
@@ -179,6 +197,7 @@ public class HexMap_Continent : HexMap {
 
     void ElevateArea(int q, int r, int range, float centerHeight = .8f)
     {
+        Debug.Log($"Elevate area at {q},{r}; range {range}");
         float minHeightCoef = 0.25f;
         float maxHeightCoef = 1f;
         
