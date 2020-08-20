@@ -23,6 +23,7 @@ public class HexMap_Continent : HexMap {
             1175914183 - nice terrain
             1791841673 - interesting terrain
             1879764718 - dynamic meshes testing
+            807093867 - dynamic meshes testing
         */
 
         int seed = Random.Range(0, int.MaxValue);
@@ -34,6 +35,8 @@ public class HexMap_Continent : HexMap {
         DefineHexNoiseTypes();
 
         ApplyHexNoiseTypes();
+
+        CalculateRoughness();
 
         // Now make sure all the hex visuals are updated to match the data.
 
@@ -55,7 +58,7 @@ public class HexMap_Continent : HexMap {
             for (int row = 0; row < NumRows; row++)
             {
                 Hex hex = GetHexAt(column, row);
-                hex.Elevation = -0.5f;
+                hex.Elevation = -0.5f * HexMap.ElevationScale;
             }
         }
 
@@ -86,36 +89,67 @@ public class HexMap_Continent : HexMap {
             Hex.HEX_FLOAT_PARAMS.Elevation, 
             0.01f, 
             new Vector2( Random.Range(0f, 1f), Random.Range(0f, 1f) ), 
-            2f,
-            -1f));
+            2f * HexMap.ElevationScale,
+            -1f * HexMap.ElevationScale,
+            0f,
+            0f,
+            HexPerlinNoiseType.NoiseModifierFunction.None,
+            HexPerlinNoiseType.NoiseApplicationType.Additive));
+
+        hexNoiseTypes.Add(new HexPerlinNoiseType(
+            Hex.HEX_FLOAT_PARAMS.Elevation, 
+            0.1f, 
+            new Vector2( Random.Range(0f, 10f), Random.Range(0f, 10f) ), 
+            8f * HexMap.ElevationScale,
+            0f,
+            6f * HexMap.ElevationScale,
+            0f,
+            HexPerlinNoiseType.NoiseModifierFunction.SquareRoot,
+            HexPerlinNoiseType.NoiseApplicationType.Additive));
 
         hexNoiseTypes.Add(new HexPerlinNoiseType(
             Hex.HEX_FLOAT_PARAMS.Moisture, 
             0.05f, 
             new Vector2( Random.Range(0f, 1f), Random.Range(0f, 1f) ), 
             1f,
-            0f));
+            0f,
+            0f,
+            0f,
+            HexPerlinNoiseType.NoiseModifierFunction.None,
+            HexPerlinNoiseType.NoiseApplicationType.Additive));
 
         hexNoiseTypes.Add(new HexPerlinNoiseType(
             Hex.HEX_FLOAT_PARAMS.IronOre, 
             0.01f, 
             new Vector2( Random.Range(0f, 1f), Random.Range(0f, 1f) ), 
             1f,
-            0));
+            0f,
+            0f,
+            0f,
+            HexPerlinNoiseType.NoiseModifierFunction.None,
+            HexPerlinNoiseType.NoiseApplicationType.Additive));
 
         hexNoiseTypes.Add(new HexPerlinNoiseType(
             Hex.HEX_FLOAT_PARAMS.XOffset, 
             1f, 
             new Vector2( Random.Range(0f, 1f), Random.Range(0f, 1f) ), 
-            0.5f,
-            -0.25f));
+            0.4f,
+            -0.2f,
+            0f,
+            0f,
+            HexPerlinNoiseType.NoiseModifierFunction.None,
+            HexPerlinNoiseType.NoiseApplicationType.Additive));
 
         hexNoiseTypes.Add(new HexPerlinNoiseType(
             Hex.HEX_FLOAT_PARAMS.ZOffset, 
             1f, 
             new Vector2( Random.Range(0f, 1f), Random.Range(0f, 1f) ), 
-            .5f,
-            -0.25f));
+            0.4f,
+            -0.2f,
+            0f,
+            0f,
+            HexPerlinNoiseType.NoiseModifierFunction.None,
+            HexPerlinNoiseType.NoiseApplicationType.Additive));
     }
 
     void ApplyHexNoiseTypes() {
@@ -128,10 +162,36 @@ public class HexMap_Continent : HexMap {
                 Hex hex = GetHexAt(column, row);
 
                 hexNoiseTypes.ForEach((HexPerlinNoiseType noiseType) => {
-                    hex.floatParams[noiseType.HexParam] += SampleNoiseType(noiseType, column/maxCoordinate, row/maxCoordinate);
+                    if (noiseType.ApplicationType == HexPerlinNoiseType.NoiseApplicationType.Additive) {
+                        hex.floatParams[noiseType.HexParam] += SampleNoiseType(noiseType, column/maxCoordinate, row/maxCoordinate);
+                    } else if (noiseType.ApplicationType == HexPerlinNoiseType.NoiseApplicationType.Multiplicative) {
+                        hex.floatParams[noiseType.HexParam] *= SampleNoiseType(noiseType, column/maxCoordinate, row/maxCoordinate);
+                    }
                 });
             }
         }
+    }
+
+    void CalculateRoughness() {
+        float maxCoordinate = Mathf.Max(NumColumns,NumRows);
+
+        for (int column = 0; column < NumColumns; column++)
+        {
+            for (int row = 0; row < NumRows; row++)
+            {
+                Hex hex = GetHexAt(column, row);
+
+                if (hex.floatParams[Hex.HEX_FLOAT_PARAMS.Elevation] >= HeightMountain) {
+                    hex.floatParams[Hex.HEX_FLOAT_PARAMS.Roughness] = HexMesh.hexTriangleSide * (0.5f /* + 0.1f * (hex.floatParams[Hex.HEX_FLOAT_PARAMS.Elevation] - HeightMountain) / HexMap.ElevationScale */);
+                }
+            }
+        }
+    }
+
+    public List<HexPerlinNoiseType> GetNoiseTypesByParam(Hex.HEX_FLOAT_PARAMS hexParam) {
+        return hexNoiseTypes.FindAll((HexPerlinNoiseType noiseType) => {
+            return noiseType.HexParam == hexParam;
+        });
     }
 
     public float SampleNoiseType(HexPerlinNoiseType noiseType, float x, float y) {
@@ -141,7 +201,28 @@ public class HexMap_Continent : HexMap {
         // According to documentation, values slightly out range can happen, so prevent it
         noiseValue = Mathf.Clamp(noiseValue, 0f, 1f);
 
-        return (noiseValue * noiseType.NoiseScale) + noiseType.NoiseValueOffset;
+        float mappedValue = (noiseValue * noiseType.NoiseScale) + noiseType.NoiseValueOffset;
+
+        float zeroRangedValue = mappedValue;
+
+        if (noiseType.ZeroRange > 0) {
+            if (Mathf.Abs(mappedValue) < noiseType.ZeroRange) {
+                zeroRangedValue = Mathf.Sign(mappedValue) * noiseType.ZeroValue;
+            } else {
+                float cutValue = mappedValue - Mathf.Sign(mappedValue) * noiseType.ZeroRange;
+                zeroRangedValue = Mathf.Sign(mappedValue) * noiseType.ZeroValue + cutValue;
+            }
+        }
+        
+        float finalValue = zeroRangedValue;
+
+        if (noiseType.ModifierFunction == HexPerlinNoiseType.NoiseModifierFunction.Squared) {
+            finalValue = Mathf.Pow(finalValue, 2f);
+        } else if (noiseType.ModifierFunction == HexPerlinNoiseType.NoiseModifierFunction.SquareRoot) {
+            finalValue = Mathf.Sqrt(finalValue);
+        }
+
+        return finalValue;
     }
 
     void CreateStartingUnit(Player player) {
@@ -198,8 +279,8 @@ public class HexMap_Continent : HexMap {
     void ElevateArea(int q, int r, int range, float centerHeight = .8f)
     {
         Debug.Log($"Elevate area at {q},{r}; range {range}");
-        float minHeightCoef = 0.25f;
-        float maxHeightCoef = 1f;
+        float minHeightCoef = 0.25f * HexMap.ElevationScale;
+        float maxHeightCoef = 1f * HexMap.ElevationScale;
         
         Hex centerHex = GetHexAt(q, r);
 
