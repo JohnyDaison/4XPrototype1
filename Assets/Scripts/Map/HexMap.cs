@@ -349,6 +349,7 @@ public class HexMap : MonoBehaviour, IQPathWorld {
 
     public void UpdateHexOreVisuals(Hex hex) {
         GameObject hexGO = hexToGameObjectMap[hex];
+        HexComponent hexComp = hexGO.GetComponentInChildren<HexComponent>();
 
         if(hex.Elevation >= HeightFlat && hex.Elevation < HeightMountain)
         {
@@ -356,6 +357,7 @@ public class HexMap : MonoBehaviour, IQPathWorld {
             {
                 // Spawn ores
                 Vector3 p = hexGO.transform.position;
+                p.y += hexComp.GetVerticalOffset(0,0);
 
                 GameObject.Instantiate(OrePrefab, p, Quaternion.identity, hexGO.transform);
             }
