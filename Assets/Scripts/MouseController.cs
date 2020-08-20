@@ -140,6 +140,8 @@ public class MouseController : MonoBehaviour
                 // NOTE: Selecting a unit does NOT change our mouse mode
 
                 //Update_CurrentFunc = Update_UnitMovement;
+            } else if (hexUnderMouse.City != null) {
+                selectionController.SelectedCity = hexUnderMouse.City;
             }
 
         }

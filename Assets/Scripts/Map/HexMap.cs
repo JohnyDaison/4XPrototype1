@@ -66,10 +66,12 @@ public class HexMap : MonoBehaviour, IQPathWorld {
 
     public int TurnNumber = 0;
 
+    public static float ElevationScale = 0.2f;
+
     // Tiles with height above whatever, is a whatever
-    [System.NonSerialized] public float HeightMountain = 1f;
-    [System.NonSerialized] public float HeightHill = 0.6f;
-    [System.NonSerialized] public float HeightFlat = 0.0f;
+    [System.NonSerialized] public float HeightMountain = 1f * ElevationScale;
+    [System.NonSerialized] public float HeightHill = 0.6f * ElevationScale;
+    [System.NonSerialized] public float HeightFlat = 0.0f * ElevationScale;
 
     [System.NonSerialized] public float MoistureJungle = 0.875f;
     [System.NonSerialized] public float MoistureForest = 0.75f;

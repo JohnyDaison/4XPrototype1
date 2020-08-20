@@ -239,18 +239,23 @@ public class HexMesh
     }
 
     private Node MakeWeightedNode(Vector3 baseVector, Hex mainHex, Hex antiClockwiseHex, Hex oppositeHex, Hex clockwiseHex) {
+        HexMap_Continent continent = mainHex.HexMap as HexMap_Continent;
+        HexPerlinNoiseType xOffsetNoise = continent.GetNoiseTypesByParam(Hex.HEX_FLOAT_PARAMS.XOffset)[0];
+        HexPerlinNoiseType zOffsetNoise = continent.GetNoiseTypesByParam(Hex.HEX_FLOAT_PARAMS.ZOffset)[0];
+        float roughnessPower = Mathf.Sqrt( Mathf.Max(0f, 0.75f - baseVector.magnitude) );
+        float roughnessOffset = UnityEngine.Random.Range(0, roughnessPower) * mainHex.floatParams[Hex.HEX_FLOAT_PARAMS.Roughness];
 
-        return new Node(baseVector.x + GetNoiseSampleAtPosition(3, mainHex, baseVector),
-                        baseVector.y + GetWeightedFloatParam(Hex.HEX_FLOAT_PARAMS.Elevation, baseVector, false, mainHex, antiClockwiseHex, oppositeHex, clockwiseHex),
-                        baseVector.z + GetNoiseSampleAtPosition(4, mainHex, baseVector) );
+        return new Node(baseVector.x + GetNoiseSampleAtPosition(xOffsetNoise, mainHex, baseVector),
+                        baseVector.y + GetWeightedFloatParam(Hex.HEX_FLOAT_PARAMS.Elevation, baseVector, false, mainHex, antiClockwiseHex, oppositeHex, clockwiseHex) + roughnessOffset,
+                        baseVector.z + GetNoiseSampleAtPosition(zOffsetNoise, mainHex, baseVector) );
     }
 
-    private float GetNoiseSampleAtPosition(int noiseIndex, Hex hex, Vector3 baseVector) {
+    private float GetNoiseSampleAtPosition(HexPerlinNoiseType noiseType, Hex hex, Vector3 baseVector) {
         Vector3 absolutePosition = hex.Position() + baseVector;
 
         HexMap_Continent hexMap = hex.HexMap as HexMap_Continent;
 
-        return hexMap.SampleNoiseType(hexMap.hexNoiseTypes[noiseIndex], absolutePosition.x, absolutePosition.z);
+        return hexMap.SampleNoiseType(noiseType, absolutePosition.x, absolutePosition.z);
     }
 
     private float GetWeightedFloatParam(Hex.HEX_FLOAT_PARAMS param, Vector3 baseVector, bool squared, Hex mainHex, Hex antiClockwiseHex, Hex oppositeHex, Hex clockwiseHex) {
