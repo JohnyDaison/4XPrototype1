@@ -239,40 +239,47 @@ public class HexMesh
     }
 
     private Node MakeWeightedNode(Vector3 baseVector, Hex mainHex, Hex antiClockwiseHex, Hex oppositeHex, Hex clockwiseHex) {
-        Vector3 absolutePosition = mainHex.PositionFromCamera(mainHex.Position()) + baseVector;
 
-        return new Node(  baseVector.x + GetWeightedFloatParam(Hex.HEX_FLOAT_PARAMS.XOffset, baseVector, false, mainHex, antiClockwiseHex, oppositeHex, clockwiseHex), 
-                                baseVector.y + GetWeightedFloatParam(Hex.HEX_FLOAT_PARAMS.Elevation, baseVector, true, mainHex, antiClockwiseHex, oppositeHex, clockwiseHex),
-                                baseVector.z + GetWeightedFloatParam(Hex.HEX_FLOAT_PARAMS.ZOffset, baseVector, false, mainHex, antiClockwiseHex, oppositeHex, clockwiseHex));
+        return new Node(baseVector.x + GetNoiseSampleAtPosition(3, mainHex, baseVector),
+                        baseVector.y + GetWeightedFloatParam(Hex.HEX_FLOAT_PARAMS.Elevation, baseVector, false, mainHex, antiClockwiseHex, oppositeHex, clockwiseHex),
+                        baseVector.z + GetNoiseSampleAtPosition(4, mainHex, baseVector) );
     }
 
-    private float GetWeightedFloatParam(Hex.HEX_FLOAT_PARAMS param, Vector3 relativePosition, bool squared, Hex mainHex, Hex antiClockwiseHex, Hex oppositeHex, Hex clockwiseHex) {
+    private float GetNoiseSampleAtPosition(int noiseIndex, Hex hex, Vector3 baseVector) {
+        Vector3 absolutePosition = hex.Position() + baseVector;
+
+        HexMap_Continent hexMap = hex.HexMap as HexMap_Continent;
+
+        return hexMap.SampleNoiseType(hexMap.hexNoiseTypes[noiseIndex], absolutePosition.x, absolutePosition.z);
+    }
+
+    private float GetWeightedFloatParam(Hex.HEX_FLOAT_PARAMS param, Vector3 baseVector, bool squared, Hex mainHex, Hex antiClockwiseHex, Hex oppositeHex, Hex clockwiseHex) {
         float total = 0;
         float totalWeight = 0;
         float weight = 0;
 
-        Vector3 absolutePosition = mainHex.PositionFromCamera(mainHex.Position()) + relativePosition;
+        Vector3 relativePosition = mainHex.PositionFromCamera(mainHex.Position()) + baseVector;
         
-        weight = GetHexWeight(mainHex, mainHex, absolutePosition);
+        weight = GetHexWeight(mainHex, mainHex, relativePosition);
         total += weight * mainHex.floatParams[param];
         totalWeight += weight;
 
         if (antiClockwiseHex != null) {
-            weight = GetHexWeight(antiClockwiseHex, mainHex, absolutePosition);
+            weight = GetHexWeight(antiClockwiseHex, mainHex, relativePosition);
 
             total += weight * antiClockwiseHex.floatParams[param];
             totalWeight += weight;
         }
 
         if (oppositeHex != null) {
-            weight = GetHexWeight(oppositeHex, mainHex, absolutePosition);
+            weight = GetHexWeight(oppositeHex, mainHex, relativePosition);
 
             total += weight * oppositeHex.floatParams[param];
             totalWeight += weight;
         }
 
         if (clockwiseHex != null) {
-            weight = GetHexWeight(clockwiseHex, mainHex, absolutePosition);
+            weight = GetHexWeight(clockwiseHex, mainHex, relativePosition);
 
             total += weight * clockwiseHex.floatParams[param];
             totalWeight += weight;
