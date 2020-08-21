@@ -150,6 +150,17 @@ public class HexMap_Continent : HexMap {
             0f,
             HexPerlinNoiseType.NoiseModifierFunction.None,
             HexPerlinNoiseType.NoiseApplicationType.Additive));
+
+        hexNoiseTypes.Add(new HexPerlinNoiseType(
+            Hex.HEX_FLOAT_PARAMS.Roughness, 
+            0.001f, 
+            new Vector2( Random.Range(0f, 1f), Random.Range(0f, 1f) ), 
+            1f,
+            -0.2f,
+            0f,
+            0f,
+            HexPerlinNoiseType.NoiseModifierFunction.None,
+            HexPerlinNoiseType.NoiseApplicationType.None));
     }
 
     void ApplyHexNoiseTypes() {
