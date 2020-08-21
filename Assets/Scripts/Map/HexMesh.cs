@@ -42,6 +42,7 @@ public class HexMesh
 
     public static float hexTriangleSide = 1f;
     public static float hexTriangleHeight = hexTriangleSide * Mathf.Sqrt(3) / 2f;
+    public static int ringCount = 4;
 
     private Vector3 topVertex = new Vector3(0, 0, 1f);
     private Vector3 topRightVertex = new Vector3(hexTriangleHeight, 0, 0.5f);
@@ -145,7 +146,6 @@ public class HexMesh
 
         List<List<Node>> rings = new List<List<Node>>();
 
-        int ringCount = 4;
         float maxRingSize = hexTriangleSide;
         List<Node> previousRing = null;
 
@@ -242,8 +242,13 @@ public class HexMesh
         HexMap_Continent continent = mainHex.HexMap as HexMap_Continent;
         HexPerlinNoiseType xOffsetNoise = continent.GetNoiseTypesByParam(Hex.HEX_FLOAT_PARAMS.XOffset)[0];
         HexPerlinNoiseType zOffsetNoise = continent.GetNoiseTypesByParam(Hex.HEX_FLOAT_PARAMS.ZOffset)[0];
-        float roughnessPower = Mathf.Sqrt( Mathf.Max(0f, 0.75f - baseVector.magnitude) );
-        float roughnessOffset = UnityEngine.Random.Range(0, roughnessPower) * mainHex.floatParams[Hex.HEX_FLOAT_PARAMS.Roughness];
+        HexPerlinNoiseType roughnessNoise = continent.GetNoiseTypesByParam(Hex.HEX_FLOAT_PARAMS.Roughness)[0];
+        
+        float roughnessPower = 0;
+        if (baseVector.magnitude < 0.75f) {
+            roughnessPower = 1f;
+        }
+        float roughnessOffset = GetNoiseSampleAtPosition(roughnessNoise, mainHex, baseVector) * roughnessPower * mainHex.floatParams[Hex.HEX_FLOAT_PARAMS.Roughness];
 
         return new Node(baseVector.x + GetNoiseSampleAtPosition(xOffsetNoise, mainHex, baseVector),
                         baseVector.y + GetWeightedFloatParam(Hex.HEX_FLOAT_PARAMS.Elevation, baseVector, false, mainHex, antiClockwiseHex, oppositeHex, clockwiseHex) + roughnessOffset,

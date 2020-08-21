@@ -9,6 +9,7 @@ public readonly struct HexPerlinNoiseType {
     }
     
     public enum NoiseApplicationType {
+        None,
         Additive,
         Multiplicative
     }
