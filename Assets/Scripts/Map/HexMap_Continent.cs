@@ -24,6 +24,7 @@ public class HexMap_Continent : HexMap {
             1791841673 - interesting terrain
             1879764718 - dynamic meshes testing
             807093867 - dynamic meshes testing
+            951680847 - shore testing
         */
 
         int seed = Random.Range(0, int.MaxValue);
@@ -35,6 +36,10 @@ public class HexMap_Continent : HexMap {
         DefineHexNoiseTypes();
 
         ApplyHexNoiseTypes();
+
+        CalculateHexProperties();
+
+        CalculateShallowWater();
 
         CalculateRoughness();
 
@@ -184,15 +189,13 @@ public class HexMap_Continent : HexMap {
     }
 
     void CalculateRoughness() {
-        float maxCoordinate = Mathf.Max(NumColumns,NumRows);
-
         for (int column = 0; column < NumColumns; column++)
         {
             for (int row = 0; row < NumRows; row++)
             {
                 Hex hex = GetHexAt(column, row);
 
-                if (hex.floatParams[Hex.HEX_FLOAT_PARAMS.Elevation] >= HeightMountain) {
+                if (hex.ElevationType == Hex.ELEVATION_TYPE.MOUNTAIN) {
                     hex.floatParams[Hex.HEX_FLOAT_PARAMS.Roughness] = HexMesh.hexTriangleSide * (0.5f /* + 0.1f * (hex.floatParams[Hex.HEX_FLOAT_PARAMS.Elevation] - HeightMountain) / HexMap.ElevationScale */);
                 }
             }

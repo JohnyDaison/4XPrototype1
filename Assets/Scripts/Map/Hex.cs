@@ -58,7 +58,7 @@ public class Hex : IQPathTile {
         }
     }
 
-    public enum TERRAIN_TYPE { PLAINS, GRASSLANDS, MARSH, FLOODPLAINS, DESERT, LAKE, OCEAN }
+    public enum TERRAIN_TYPE { PLAINS, GRASSLANDS, MARSH, FLOODPLAINS, DESERT, OCEAN, SHALLOW_WATER, MOUNTAIN }
     public enum ELEVATION_TYPE { FLAT, HILL, MOUNTAIN, WATER }
 
     public TERRAIN_TYPE TerrainType { get; set; }
