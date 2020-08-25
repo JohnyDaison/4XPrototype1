@@ -74,6 +74,8 @@ public class Hex : IQPathTile {
     float radius = 1f;
     Hex[] neighbours;
 
+    private HexMesh hexMesh = new HexMesh();
+
     HashSet<Unit> units;
     public Unit[] Units { 
         get{
@@ -342,4 +344,164 @@ public class Hex : IQPathTile {
         return ((Unit)theUnit).AggregateTurnsToEnterHex(this, costSoFar);
     }
     #endregion
+
+    public void UpdateHexProperties() {
+        UpdateElevationType();
+        UpdateMoistureProperties();
+    }
+    public void UpdateElevationType() {
+        if(Elevation >= HexMap.HeightMountain)
+        {
+            ElevationType = ELEVATION_TYPE.MOUNTAIN;
+            TerrainType = TERRAIN_TYPE.MOUNTAIN;
+        }
+        else if(Elevation >= HexMap.HeightHill)
+        {
+            ElevationType = ELEVATION_TYPE.HILL;
+        }
+        else if(Elevation >= HexMap.HeightFlat)
+        {
+            ElevationType = ELEVATION_TYPE.FLAT;
+        }
+        else
+        {
+            ElevationType = ELEVATION_TYPE.WATER;
+            TerrainType = TERRAIN_TYPE.OCEAN;
+        }
+    }
+
+    public void UpdateMoistureProperties() {
+        if(Elevation >= HexMap.HeightFlat && Elevation < HexMap.HeightMountain)
+        {
+            if(Moisture >= HexMap.MoistureJungle)
+            {
+                TerrainType = TERRAIN_TYPE.GRASSLANDS;
+                FeatureType = FEATURE_TYPE.RAINFOREST;
+            }
+            else if(Moisture >= HexMap.MoistureForest)
+            {
+                TerrainType = TERRAIN_TYPE.GRASSLANDS;
+                FeatureType = FEATURE_TYPE.FOREST;
+            }
+            else if(Moisture >= HexMap.MoistureGrasslands)
+            {
+                TerrainType = TERRAIN_TYPE.GRASSLANDS;
+            }
+            else if(Moisture >= HexMap.MoisturePlains)
+            {
+                TerrainType = TERRAIN_TYPE.PLAINS;
+            }
+            else 
+            {
+                TerrainType = TERRAIN_TYPE.DESERT;
+            }
+        }
+    }
+
+    public void UpdateIsShallowWater() {
+        Hex[] neighbours = GetNeighbours() as Hex[];
+        bool hasLandNeighbour = false;
+
+        if (ElevationType == ELEVATION_TYPE.WATER) {
+            for(int index = 0; index < neighbours.Length; index++) {
+                Hex neighbour = neighbours[index];
+
+                if (neighbour.ElevationType != ELEVATION_TYPE.WATER) {
+                    hasLandNeighbour = true;
+                    break;
+                }
+            }
+
+            if (hasLandNeighbour) {
+                TerrainType = TERRAIN_TYPE.SHALLOW_WATER;
+            }
+        }
+    }
+
+    public void UpdateHexVisuals() {
+        UpdateElevationVisuals();
+        UpdateMoistureVisuals();
+        UpdateOreVisuals();
+        UpdateDebugText();
+    }
+
+    public void UpdateElevationVisuals() {
+        GameObject hexGO = HexMap.GetHexGO(this);
+
+        HexComponent hexComp = hexGO.GetComponentInChildren<HexComponent>();
+        MeshRenderer mr = hexGO.GetComponentInChildren<MeshRenderer>();
+        MeshCollider mc = hexGO.GetComponentInChildren<MeshCollider>();
+        MeshFilter mf = hexGO.GetComponentInChildren<MeshFilter>();
+
+        if(ElevationType == ELEVATION_TYPE.MOUNTAIN) {
+            mr.material = HexMap.MatMountains;
+        }
+        else if(ElevationType == ELEVATION_TYPE.WATER) {            
+            mr.material = HexMap.MatOcean;   
+
+            if (TerrainType == TERRAIN_TYPE.SHALLOW_WATER) {
+                mr.material = HexMap.MatShallowWater;
+            }
+        }
+
+
+        mf.mesh = hexMesh.GenerateHexMesh(this);
+        Transform[] childTransform = hexGO.GetComponentsInChildren<Transform>();
+        childTransform[1].rotation = new Quaternion(0f, 0f, 0f, hexGO.transform.rotation.w);
+
+        mc.sharedMesh = mf.mesh;
+    }
+
+    public void UpdateMoistureVisuals() {
+        GameObject hexGO = HexMap.GetHexGO(this);
+
+        HexComponent hexComp = hexGO.GetComponentInChildren<HexComponent>();
+        MeshRenderer mr = hexGO.GetComponentInChildren<MeshRenderer>();
+
+        if (TerrainType == TERRAIN_TYPE.GRASSLANDS) {
+            mr.material = HexMap.MatGrasslands;
+
+            if (FeatureType == FEATURE_TYPE.RAINFOREST) {
+                mr.material = HexMap.MatJungle;
+
+                // Spawn trees
+                Vector3 p = hexGO.transform.position;
+                p.y += hexComp.GetVerticalOffset(0,0);
+
+                GameObject.Instantiate(HexMap.JunglePrefab, p, Quaternion.identity, hexGO.transform);
+            } else if (FeatureType == FEATURE_TYPE.FOREST) {
+                // Spawn trees
+                Vector3 p = hexGO.transform.position;
+                p.y += hexComp.GetVerticalOffset(0,0);
+
+                GameObject.Instantiate(HexMap.ForestPrefab, p, Quaternion.identity, hexGO.transform);
+            }
+        } else if (TerrainType == TERRAIN_TYPE.PLAINS) {
+            mr.material = HexMap.MatPlains;
+        } else if (TerrainType == TERRAIN_TYPE.DESERT) {
+            mr.material = HexMap.MatDesert;
+        }
+    }
+
+    public void UpdateOreVisuals() {
+        GameObject hexGO = HexMap.GetHexGO(this);
+        HexComponent hexComp = hexGO.GetComponentInChildren<HexComponent>();
+
+        if(Elevation >= HexMap.HeightFlat && Elevation < HexMap.HeightMountain) {
+            if(floatParams[HEX_FLOAT_PARAMS.IronOre] >= HexMap.IronOreMinLimit) {
+                // Spawn ores
+                Vector3 p = hexGO.transform.position;
+                p.y += hexComp.GetVerticalOffset(0,0);
+
+                GameObject.Instantiate(HexMap.OrePrefab, p, Quaternion.identity, hexGO.transform);
+            }
+        }
+    }
+
+    public void UpdateDebugText() {
+        GameObject hexGO = HexMap.GetHexGO(this);
+
+        hexGO.GetComponentInChildren<TextMesh>().text = 
+                    string.Format("{0},{1}\n{2}", Q, R, BaseMovementCost( false, false, false ));
+    }
 }

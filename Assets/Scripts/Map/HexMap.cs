@@ -118,8 +118,6 @@ public class HexMap : MonoBehaviour, IQPathWorld {
     private Dictionary<City, GameObject> cityToGameObjectMap;
     private Dictionary<SurfaceStructure, GameObject> structureToGameObjectMap;
 
-    private HexMesh hexMesh = new HexMesh();
-
     public Hex GetHexAt(int x, int y)
     {
         if(hexes == null)
@@ -252,8 +250,7 @@ public class HexMap : MonoBehaviour, IQPathWorld {
             {
                 Hex hex = hexes[column,row];
 
-                CalculateHexElevationType(hex);
-                CalculateHexMoistureProperties(hex);
+                hex.UpdateHexProperties();
             }
         }
     }
@@ -266,7 +263,7 @@ public class HexMap : MonoBehaviour, IQPathWorld {
             {
                 Hex hex = hexes[column,row];
 
-                CalculateHexIsShallowWater(hex);
+                hex.UpdateIsShallowWater();
             }
         }
     }
@@ -279,164 +276,11 @@ public class HexMap : MonoBehaviour, IQPathWorld {
             {
                 Hex hex = hexes[column,row];
 
-                UpdateHexElevationVisuals(hex);
-                UpdateHexMoistureVisuals(hex);
-                UpdateHexOreVisuals(hex);
-                UpdateHexDebugText(hex);
+                hex.UpdateHexVisuals();
             }
         }
     }
-
-    public void CalculateHexElevationType(Hex hex) {
-        if(hex.Elevation >= HeightMountain)
-        {
-            hex.ElevationType = Hex.ELEVATION_TYPE.MOUNTAIN;
-            hex.TerrainType = Hex.TERRAIN_TYPE.MOUNTAIN;
-        }
-        else if(hex.Elevation >= HeightHill)
-        {
-            hex.ElevationType = Hex.ELEVATION_TYPE.HILL;
-        }
-        else if(hex.Elevation >= HeightFlat)
-        {
-            hex.ElevationType = Hex.ELEVATION_TYPE.FLAT;
-        }
-        else
-        {
-            hex.ElevationType = Hex.ELEVATION_TYPE.WATER;
-            hex.TerrainType = Hex.TERRAIN_TYPE.OCEAN;
-        }
-    }
-
-    public void CalculateHexMoistureProperties(Hex hex) {
-        GameObject hexGO = hexToGameObjectMap[hex];
-
-        if(hex.Elevation >= HeightFlat && hex.Elevation < HeightMountain)
-        {
-            if(hex.Moisture >= MoistureJungle)
-            {
-                hex.TerrainType = Hex.TERRAIN_TYPE.GRASSLANDS;
-                hex.FeatureType = Hex.FEATURE_TYPE.RAINFOREST;
-            }
-            else if(hex.Moisture >= MoistureForest)
-            {
-                hex.TerrainType = Hex.TERRAIN_TYPE.GRASSLANDS;
-                hex.FeatureType = Hex.FEATURE_TYPE.FOREST;
-            }
-            else if(hex.Moisture >= MoistureGrasslands)
-            {
-                hex.TerrainType = Hex.TERRAIN_TYPE.GRASSLANDS;
-            }
-            else if(hex.Moisture >= MoisturePlains)
-            {
-                hex.TerrainType = Hex.TERRAIN_TYPE.PLAINS;
-            }
-            else 
-            {
-                hex.TerrainType = Hex.TERRAIN_TYPE.DESERT;
-            }
-        }
-    }
-
-    public void CalculateHexIsShallowWater(Hex hex) {
-        Hex[] neighbours = hex.GetNeighbours() as Hex[];
-        bool hasLandNeighbour = false;
-
-        if (hex.ElevationType == Hex.ELEVATION_TYPE.WATER) {
-            for(int index = 0; index < neighbours.Length; index++) {
-                Hex neighbour = neighbours[index];
-
-                if (neighbour.ElevationType != Hex.ELEVATION_TYPE.WATER) {
-                    hasLandNeighbour = true;
-                    break;
-                }
-            }
-
-            if (hasLandNeighbour) {
-                hex.TerrainType = Hex.TERRAIN_TYPE.SHALLOW_WATER;
-            }
-        }
-    }
-
-    public void UpdateHexElevationVisuals(Hex hex) {
-        GameObject hexGO = hexToGameObjectMap[hex];
-
-        HexComponent hexComp = hexGO.GetComponentInChildren<HexComponent>();
-        MeshRenderer mr = hexGO.GetComponentInChildren<MeshRenderer>();
-        MeshCollider mc = hexGO.GetComponentInChildren<MeshCollider>();
-        MeshFilter mf = hexGO.GetComponentInChildren<MeshFilter>();
-
-        if(hex.ElevationType == Hex.ELEVATION_TYPE.MOUNTAIN) {
-            mr.material = MatMountains;
-        }
-        else if(hex.ElevationType == Hex.ELEVATION_TYPE.WATER) {            
-            mr.material = MatOcean;   
-
-            if (hex.TerrainType == Hex.TERRAIN_TYPE.SHALLOW_WATER) {
-                mr.material = MatShallowWater;
-            }
-        }
-
-
-        mf.mesh = hexMesh.GenerateHexMesh(hex);
-        Transform[] childTransform = hexGO.GetComponentsInChildren<Transform>();
-        childTransform[1].rotation = new Quaternion(0f, 0f, 0f, transform.rotation.w);
-
-        mc.sharedMesh = mf.mesh;
-    }
-
-    public void UpdateHexMoistureVisuals(Hex hex) {
-        GameObject hexGO = hexToGameObjectMap[hex];
-
-        HexComponent hexComp = hexGO.GetComponentInChildren<HexComponent>();
-        MeshRenderer mr = hexGO.GetComponentInChildren<MeshRenderer>();
-
-        if (hex.TerrainType == Hex.TERRAIN_TYPE.GRASSLANDS) {
-            mr.material = MatGrasslands;
-
-            if (hex.FeatureType == Hex.FEATURE_TYPE.RAINFOREST) {
-                mr.material = MatJungle;
-
-                // Spawn trees
-                Vector3 p = hexGO.transform.position;
-                p.y += hexComp.GetVerticalOffset(0,0);
-
-                GameObject.Instantiate(JunglePrefab, p, Quaternion.identity, hexGO.transform);
-            } else if (hex.FeatureType == Hex.FEATURE_TYPE.FOREST) {
-                // Spawn trees
-                Vector3 p = hexGO.transform.position;
-                p.y += hexComp.GetVerticalOffset(0,0);
-
-                GameObject.Instantiate(ForestPrefab, p, Quaternion.identity, hexGO.transform);
-            }
-        } else if (hex.TerrainType == Hex.TERRAIN_TYPE.PLAINS) {
-            mr.material = MatPlains;
-        } else if (hex.TerrainType == Hex.TERRAIN_TYPE.DESERT) {
-            mr.material = MatDesert;
-        }
-    }
-
-    public void UpdateHexOreVisuals(Hex hex) {
-        GameObject hexGO = hexToGameObjectMap[hex];
-        HexComponent hexComp = hexGO.GetComponentInChildren<HexComponent>();
-
-        if(hex.Elevation >= HeightFlat && hex.Elevation < HeightMountain) {
-            if(hex.floatParams[Hex.HEX_FLOAT_PARAMS.IronOre] >= IronOreMinLimit) {
-                // Spawn ores
-                Vector3 p = hexGO.transform.position;
-                p.y += hexComp.GetVerticalOffset(0,0);
-
-                GameObject.Instantiate(OrePrefab, p, Quaternion.identity, hexGO.transform);
-            }
-        }
-    }
-
-    public void UpdateHexDebugText(Hex hex) {
-        GameObject hexGO = hexToGameObjectMap[hex];
-
-        hexGO.GetComponentInChildren<TextMesh>().text = 
-                    string.Format("{0},{1}\n{2}", hex.Q, hex.R, hex.BaseMovementCost( false, false, false ));
-    }
+    
 
     public Hex[] GetHexesWithinRangeOf(Hex centerHex, int range)
     {
